@@ -1,0 +1,1 @@
+Coloque nesta pasta o arquivo JOMTI_2026_Termo_Responsabilidade.pdf. O app.js carrega esse arquivo como modelo para gerar o termo preenchido e assinado.
