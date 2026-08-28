@@ -163,7 +163,7 @@ async function generatePdf(){
     drawTextInRect(p2,font,v.emergenciaTelefone,[138,184.5,509,201.7],{size:9.5});
     const sigData=canvasTrimmedDataUrl(canvas); if(!sigData)throw new Error('Assinatura vazia.');
     const sig=await pdfDoc.embedPng(dataUrlToUint8Array(sigData));
-    const box={x:86,y:137,w:327,h:35}; const ratio=sig.width/sig.height; let w=box.w,h=w/ratio; if(h>box.h){h=box.h;w=h*ratio;} p2.drawImage(sig,{x:box.x+(box.w-w)/2,y:box.y+(box.h-h)/2,width:w,height:h});
+    const box={x:86,y:164.5,w:327,h:20.5}; const ratio=sig.width/sig.height; let w=box.w,h=w/ratio; if(h>box.h){h=box.h;w=h*ratio;} p2.drawImage(sig,{x:box.x+(box.w-w)/2,y:box.y+(box.h-h)/2,width:w,height:h});
     const pdfBytes=await pdfDoc.save(); if(!looksLikePdf(pdfBytes)) throw new Error('Falha de integridade: saída não é PDF.');
     if(generatedUrl) URL.revokeObjectURL(generatedUrl);
     const blob=new Blob([pdfBytes],{type:'application/pdf'}); generatedUrl=URL.createObjectURL(blob);
