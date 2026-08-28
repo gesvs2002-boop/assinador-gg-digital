@@ -4,6 +4,7 @@ const zlib = require('zlib');
 
 const ZIP_NAME = 'Assinador_GG_Digital_JOMTI_2026_MVP.zip';
 const TARGET = 'assinador-gg-jomti/assets/JOMTI_2026_Termo_Responsabilidade.pdf';
+const EXPECTED_SIZE = 54677;
 
 function findEocd(buffer) {
   const min = Math.max(0, buffer.length - 0xffff - 22);
@@ -21,7 +22,6 @@ function extractEntry(zip, target) {
 
   for (let i = 0; i < totalEntries; i++) {
     if (zip.readUInt32LE(pos) !== 0x02014b50) throw new Error('Diretório central inválido.');
-
     const method = zip.readUInt16LE(pos + 10);
     const compressedSize = zip.readUInt32LE(pos + 20);
     const nameLen = zip.readUInt16LE(pos + 28);
@@ -36,30 +36,28 @@ function extractEntry(zip, target) {
       const localExtraLen = zip.readUInt16LE(localOffset + 28);
       const dataStart = localOffset + 30 + localNameLen + localExtraLen;
       const compressed = zip.subarray(dataStart, dataStart + compressedSize);
-
       if (method === 0) return Buffer.from(compressed);
       if (method === 8) return zlib.inflateRawSync(compressed);
-      throw new Error(`Método de compressão ZIP não suportado: ${method}`);
+      throw new Error(`Método ZIP não suportado: ${method}`);
     }
-
     pos += 46 + nameLen + extraLen + commentLen;
   }
-
   throw new Error('PDF-modelo não encontrado dentro do ZIP.');
 }
 
 module.exports = function handler(req, res) {
   try {
     const zipPath = path.join(process.cwd(), ZIP_NAME);
-    const zip = fs.readFileSync(zipPath);
-    const pdf = extractEntry(zip, TARGET);
-
+    const pdf = extractEntry(fs.readFileSync(zipPath), TARGET);
+    if (pdf.length !== EXPECTED_SIZE) throw new Error(`Tamanho inesperado: ${pdf.length}`);
+    if (pdf.subarray(0, 8).toString('ascii') !== '%PDF-1.7') throw new Error('Cabeçalho PDF inválido.');
     res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="JOMTI_2026_Termo_Responsabilidade.pdf"');
     res.setHeader('Content-Length', String(pdf.length));
-    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=3600');
     res.status(200).send(pdf);
   } catch (error) {
     console.error('Erro ao carregar modelo JOMTI:', error);
-    res.status(500).json({ error: 'Não foi possível carregar o modelo do termo.' });
+    res.status(500).json({ error: 'Não foi possível carregar o modelo original do termo.' });
   }
 };
