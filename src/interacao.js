@@ -200,7 +200,7 @@ export function renderInteracao(app, model, goHome, store) {
         prancha:rosterValues('prancha',5),
         pulaCorda:rosterValues('pulaCorda',5)
       }, sig);
-      finishDownload(app,bytes,`Interacao_UNISAPIENS_2026_${safeName(periodo)}_${safeName(formato)}.pdf`,!!sig,store);
+      finishDownload(app,bytes,`${safeName(periodo)}_${safeName(formato)}.pdf`,!!sig,store);
     } catch(err) {
       console.error(err);
       error.textContent=`Erro ao gerar PDF: ${err.message||'falha inesperada'}`;
