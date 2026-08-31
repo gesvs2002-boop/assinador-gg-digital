@@ -127,8 +127,7 @@ function looksLikePdf(bytes){ return bytes?.length>5 && bytes[0]===0x25 && bytes
 async function generatePdf(){
   const error=$('errorBox'); error.hidden=true;
   if(!validateStep1()){showStep(1);return;} if(!validateStep2()){showStep(2);return;}
-  if(!hasSignature){error.textContent='Faça sua assinatura no quadro antes de gerar o documento.';error.hidden=false;return;}
-  if(!$('dataAssinatura').value){error.textContent='Informe a data da assinatura.';error.hidden=false;return;}
+  if(!$('dataAssinatura').value){error.textContent='Informe a data do termo.';error.hidden=false;return;}
   const btn=$('generatePdf'),label=btn.querySelector('.btn-label'),spinner=btn.querySelector('.spinner');
   btn.disabled=true; label.textContent='Gerando PDF...'; spinner.hidden=false;
   try{
@@ -155,18 +154,33 @@ async function generatePdf(){
     drawTextInRect(p2,font,v.emergenciaNome,[123.8,279,509.8,295.5],{size:9.5});
     drawTextInRect(p2,font,v.parentesco,[153.6,255.5,511.7,272],{size:9.5});
     drawTextInRect(p2,font,v.emergenciaTelefone,[138.7,232,507.8,248.5],{size:9.5});
-    const sigData=canvasTrimmedDataUrl(canvas); if(!sigData)throw new Error('Assinatura vazia.');
-    const sig=await pdfDoc.embedPng(dataUrlToUint8Array(sigData));
-    const box={x:85,y:213.5,w:331,h:23}; const ratio=sig.width/sig.height; let w=box.w,h=w/ratio; if(h>box.h){h=box.h;w=h*ratio;} p2.drawImage(sig,{x:box.x+(box.w-w)/2,y:box.y+(box.h-h)/2,width:w,height:h});
+
+    if(hasSignature){
+      const sigData=canvasTrimmedDataUrl(canvas);
+      if(sigData){
+        const sig=await pdfDoc.embedPng(dataUrlToUint8Array(sigData));
+        const box={x:85,y:213.5,w:331,h:23};
+        const ratio=sig.width/sig.height; let w=box.w,h=w/ratio;
+        if(h>box.h){h=box.h;w=h*ratio;}
+        p2.drawImage(sig,{x:box.x+(box.w-w)/2,y:box.y+(box.h-h)/2,width:w,height:h});
+      }
+    }
+
     const pdfBytes=await pdfDoc.save(); if(!looksLikePdf(pdfBytes)) throw new Error('Falha de integridade: saída não é PDF.');
     if(generatedUrl) URL.revokeObjectURL(generatedUrl);
     const blob=new Blob([pdfBytes],{type:'application/pdf'}); generatedUrl=URL.createObjectURL(blob);
     const filename=`JOMTI_2026_Termo_${sanitizeFileName(v.nome)}.pdf`;
     const dl=$('downloadAgain'); dl.href=generatedUrl; dl.download=filename;
+    const successMessage=$('successMessage');
+    if(successMessage){
+      successMessage.textContent=hasSignature
+        ? 'O PDF foi gerado com os dados preenchidos e a assinatura inserida no modelo original.'
+        : 'O PDF foi gerado com os dados preenchidos. A área de assinatura foi mantida em branco para assinatura posterior.';
+    }
     $('successCard').hidden=false; $('successCard').scrollIntoView({behavior:'smooth',block:'center'});
     const a=document.createElement('a'); a.href=generatedUrl; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
   }catch(err){ console.error(err); error.textContent=`Erro ao gerar PDF: ${err.message||'falha inesperada'}`; error.hidden=false; }
-  finally{ btn.disabled=false; label.textContent='Gerar termo assinado'; spinner.hidden=true; }
+  finally{ btn.disabled=false; label.textContent='Gerar termo em PDF'; spinner.hidden=true; }
 }
 $('generatePdf').addEventListener('click',generatePdf);
 $('dataAssinatura').valueAsDate=new Date();
