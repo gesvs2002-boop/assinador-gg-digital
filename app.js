@@ -219,34 +219,28 @@
         modalidades: $('modalidades').value.trim(), delegacao: $('delegacao').value.trim(), emergenciaNome: $('emergenciaNome').value.trim(), parentesco: $('parentesco').value.trim(), emergenciaTelefone: $('emergenciaTelefone').value.trim()
       };
 
-      // Página 1 - posições derivadas do mesmo modelo PDF.
-      drawTextInRect(p1,font,values.nome,[192,602,527,619.2],{size:10});
-      drawTextInRect(p1,font,values.cpf,[129.5,588,305,604.3],{size:9.2});
-      drawTextInRect(p1,font,n.day,[425.4,588,448,604.3],{size:9.2,padX:3});
-      drawTextInRect(p1,font,n.month,[452.6,588,474.9,604.3],{size:9.2,padX:3});
-      drawTextInRect(p1,font,n.year,[479.4,588,524,604.3],{size:9.2,padX:3});
-      drawTextInRect(p1,font,values.endereco,[84.5,558,420,575],{size:9});
-      drawTextInRect(p1,font,values.telefone,[84.5,543.5,260,560.3],{size:9.2});
+      // Página 1 - dados pessoais no novo modelo enviado em 31/08/2026.
+      drawTextInRect(p1,font,values.nome,[109.9,602,523.2,619],{size:10});
+      drawTextInRect(p1,font,values.cpf,[123.8,587,261.6,604],{size:9.2});
+      drawTextInRect(p1,font,n.day,[374.4,587,396,604],{size:9.2,padX:3});
+      drawTextInRect(p1,font,n.month,[401.3,587,422.4,604],{size:9.2,padX:3});
+      drawTextInRect(p1,font,n.year,[427.7,587,471.4,604],{size:9.2,padX:3});
+      drawTextInRect(p1,font,values.endereco,[192.5,572.5,523.2,589],{size:9});
+      drawTextInRect(p1,font,values.telefone,[133.4,557.5,303.8,574],{size:9.2});
 
-      // Página 2 - data, dados do atleta e emergência.
-      drawTextInRect(p2,font,String(Number(s.day)),[175,450,210,466.6],{size:10.2,padX:2});
-      drawTextInRect(p2,font,months[Number(s.month)],[226.5,450,372,466.6],{size:10.2,padX:3});
-      drawTextInRect(p2,font,values.nome,[178.5,400,511,417],{size:9.5});
-      drawTextInRect(p2,font,values.cpf,[112.8,376,506,393.3],{size:9.5});
-      drawTextInRect(p2,font,n.day,[200.4,352,233.8,369.7],{size:9.5,padX:3});
-      drawTextInRect(p2,font,n.month,[237.7,352,271,369.7],{size:9.5,padX:3});
-      drawTextInRect(p2,font,n.year,[274.9,352,341.5,369.7],{size:9.5,padX:3});
-      drawTextInRect(p2,font,values.telefone,[138,329,509,346],{size:9.5});
-      drawTextInRect(p2,font,values.modalidades,[168.2,305,512,322.4],{size:9.5});
-      drawTextInRect(p2,font,values.delegacao,[191.3,281.5,518,298.7],{size:9.5});
-      drawTextInRect(p2,font,values.emergenciaNome,[123.5,231.5,511,249],{size:9.5});
-      drawTextInRect(p2,font,values.parentesco,[153.2,208,513,225.3],{size:9.5});
-      drawTextInRect(p2,font,values.emergenciaTelefone,[138,184.5,509,201.7],{size:9.5});
+      // Página 2 - modalidade, delegação, data e contato para emergência.
+      drawTextInRect(p2,font,values.modalidades,[155.5,450,513.6,466.5],{size:9.5});
+      drawTextInRect(p2,font,values.delegacao,[192,426,517,442.5],{size:9.5});
+      drawTextInRect(p2,font,String(Number(s.day)),[176.2,376.5,208.3,393],{size:10.2,padX:2});
+      drawTextInRect(p2,font,months[Number(s.month)],[227.5,376.5,370.6,393],{size:10.2,padX:3});
+      drawTextInRect(p2,font,values.emergenciaNome,[123.8,279,509.8,295.5],{size:9.5});
+      drawTextInRect(p2,font,values.parentesco,[153.6,255.5,511.7,272],{size:9.5});
+      drawTextInRect(p2,font,values.emergenciaTelefone,[138.7,232,507.8,248.5],{size:9.5});
 
       const sigData = canvasTrimmedDataUrl(canvas);
       if (!sigData) throw new Error('Assinatura vazia.');
       const sig = await pdfDoc.embedPng(dataUrlToUint8Array(sigData));
-      const sigBox = { x:86, y:164.5, w:327, h:20.5 };
+      const sigBox = { x:85, y:213.5, w:331, h:23 };
       const ratio = sig.width / sig.height;
       let w = sigBox.w, h = w / ratio;
       if (h > sigBox.h) { h = sigBox.h; w = h * ratio; }

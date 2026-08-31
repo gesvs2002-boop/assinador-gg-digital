@@ -4,7 +4,7 @@ const zlib = require('zlib');
 
 const ZIP_NAME = 'Assinador_GG_Digital_JOMTI_2026_MVP.zip';
 const TARGET = 'assinador-gg-jomti/assets/JOMTI_2026_Termo_Responsabilidade.pdf';
-const EXPECTED_SIZE = 54677;
+const EXPECTED_SIZE = 54218;
 
 function findEocd(buffer) {
   const min = Math.max(0, buffer.length - 0xffff - 22);
