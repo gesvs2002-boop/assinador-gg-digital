@@ -46,12 +46,12 @@ export function looksLikePdf(bytes) { return bytes?.length>5&&bytes[0]===0x25&&b
 export function modelHeader(model, steps) {
   return `<section class="model-hero">
     <div><span class="eyebrow">${esc(model.title)}</span><h1>${esc(model.subtitle)}</h1><p>${esc(model.description)}</p></div>
-    <div class="model-actions"><button class="link-button" data-home type="button">← Modelos</button><a class="doc-link" href="${model.pdfUrl}" target="_blank" rel="noopener">Ver PDF original ↗</a></div>
+    <div class="model-actions"><button class="link-button" data-home type="button">← Sair do documento</button><a class="doc-link" href="${model.pdfUrl}" target="_blank" rel="noopener">Ver PDF original ↗</a></div>
   </section>
   <ol class="steps" aria-label="Etapas">${steps.map((s,i)=>`<li class="step ${i===0?'is-active':''}" data-step-pill="${i+1}"><span>${i+1}</span><div><strong>${esc(s[0])}</strong><small>${esc(s[1])}</small></div></li>`).join('')}</ol>`;
 }
 export function successHtml() {
-  return `<section class="success-card" id="successCard" hidden><div class="success-icon">✓</div><div><span class="section-kicker">Documento pronto</span><h2>PDF gerado com sucesso</h2><p id="successText">O documento foi gerado.</p></div><div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><button class="btn btn-ghost" data-home type="button">Voltar aos modelos</button></div></section>`;
+  return `<section class="success-card" id="successCard" hidden><div class="success-icon">✓</div><div><span class="section-kicker">Documento pronto</span><h2>PDF gerado com sucesso</h2><p id="successText">O documento foi gerado.</p></div><div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><button class="btn btn-ghost" data-home type="button">Encerrar</button></div></section>`;
 }
 export function signatureStep(label, note, withDate=false) {
   return `<section class="panel" data-step-panel="3" hidden>
