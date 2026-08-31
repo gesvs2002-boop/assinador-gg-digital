@@ -2,6 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/gg-admin-9f3c7e2a6b1d4c8f", "destination": "/index.html" },
+    { "source": "/d/jomti-2026", "destination": "/index.html" },
+    { "source": "/d/interacao-unisapiens-2026", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
