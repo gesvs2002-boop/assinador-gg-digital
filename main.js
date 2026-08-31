@@ -5,7 +5,6 @@ import { renderInteracao } from './src/interacao.js';
 const app=document.getElementById('app');
 const brandHome=document.getElementById('brandHome');
 const store={url:null};
-
 function cleanup(){if(store.url){URL.revokeObjectURL(store.url);store.url=null;}}
 function card(m){return `<button class="model-card" type="button" data-model="${m.id}"><div class="model-card-top"><span class="model-icon">${m.icon}</span><span class="status-badge">Disponível</span></div><h3>${esc(m.title)}</h3><p><strong>${esc(m.subtitle)}</strong><br>${esc(m.description)}</p><div class="model-meta">${m.tags.map(t=>`<span class="mini-badge">${esc(t)}</span>`).join('')}</div><span class="model-cta">Preencher documento →</span></button>`;}
 function bindCards(){app.querySelectorAll('[data-model]').forEach(el=>el.addEventListener('click',()=>openModel(el.dataset.model,true)));}
@@ -13,4 +12,6 @@ function showHome(push=true){cleanup();if(push)history.pushState({},'',location.
 function filter(term){const q=term.trim().toLowerCase(),found=MODELS.filter(m=>`${m.title} ${m.subtitle} ${m.description} ${m.tags.join(' ')}`.toLowerCase().includes(q)),grid=app.querySelector('#modelGrid');grid.innerHTML=found.length?found.map(card).join(''):'<div class="empty-state">Nenhum modelo encontrado.</div>';bindCards();}
 function openModel(id,push=true){cleanup();const model=MODELS.find(m=>m.id===id);if(!model){showHome(push);return;}if(push)history.pushState({model:id},'',`${location.pathname}?modelo=${encodeURIComponent(id)}`);const goHome=()=>showHome(true);if(id==='jomti-2026')renderJomti(app,model,goHome,store);else if(id==='interacao-unisapiens-2026')renderInteracao(app,model,goHome,store);}
 function route(){const id=new URLSearchParams(location.search).get('modelo');if(id&&MODELS.some(m=>m.id===id))openModel(id,false);else showHome(false);}
+function prepareVisibleCanvas(){requestAnimationFrame(()=>{const c=app.querySelector('#signatureCanvas');if(!c||c.closest('[hidden]'))return;const r=c.getBoundingClientRect();if(!r.width||!r.height)return;const dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2));c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111827';ctx.lineWidth=2.2;});}
+document.addEventListener('click',e=>{if(e.target.closest('[data-next="3"]'))prepareVisibleCanvas();});
 brandHome.addEventListener('click',()=>showHome(true));window.addEventListener('popstate',route);route();
