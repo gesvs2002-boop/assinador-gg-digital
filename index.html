@@ -4,117 +4,30 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1220" />
-  <meta name="description" content="Assinador GG Digital - preencha, assine opcionalmente e gere seu termo em PDF no próprio dispositivo." />
-  <title>Assinador GG Digital | JOMTI 2026</title>
+  <meta name="description" content="Assinador GG Digital — escolha um documento, preencha e gere o PDF pronto." />
+  <title>Assinador GG Digital</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="shell topbar-inner">
-      <a class="brand" href="#" aria-label="Assinador GG Digital">
+      <button id="brandHome" class="brand brand-button" type="button" aria-label="Voltar para o início">
         <span class="brand-mark">GG</span>
         <span class="brand-copy"><strong>Assinador</strong><small>GG Digital</small></span>
-      </a>
+      </button>
       <span class="privacy-pill">🔒 Geração local</span>
     </div>
   </header>
 
-  <main class="shell main-shell">
-    <section class="hero">
-      <div>
-        <span class="eyebrow">JOMTI 2026</span>
-        <h1>Termo de Responsabilidade</h1>
-        <p>Preencha seus dados, leia o termo e gere o PDF. Se desejar, você também pode assinar com o dedo ou mouse antes de baixar.</p>
-      </div>
-      <a class="doc-link" href="/assets/JOMTI_2026_Termo_Responsabilidade.pdf" target="_blank" rel="noopener">Ver documento original ↗</a>
-    </section>
+  <main id="app" class="shell main-shell" aria-live="polite"></main>
 
-    <ol class="steps" aria-label="Etapas">
-      <li class="step is-active" data-step-pill="1"><span>1</span><div><strong>Dados</strong><small>Atleta e emergência</small></div></li>
-      <li class="step" data-step-pill="2"><span>2</span><div><strong>Termo</strong><small>Leitura e ciência</small></div></li>
-      <li class="step" data-step-pill="3"><span>3</span><div><strong>Finalizar</strong><small>Assinatura opcional e PDF</small></div></li>
-    </ol>
+  <footer>
+    <div class="shell footer-inner">
+      <span>Assinador GG Digital</span>
+      <span>Documentos preenchíveis • Versão MVP</span>
+    </div>
+  </footer>
 
-    <form id="signerForm" novalidate>
-      <section class="panel step-panel is-active" data-step-panel="1">
-        <div class="panel-head">
-          <div><span class="section-kicker">Etapa 1 de 3</span><h2>Dados do atleta</h2></div>
-          <p>Use os mesmos dados da inscrição.</p>
-        </div>
-        <div class="form-grid">
-          <label class="field field-span-2"><span>Nome completo *</span><input id="nome" autocomplete="name" maxlength="90" required placeholder="Ex.: Maria da Silva" /></label>
-          <label class="field"><span>CPF *</span><input id="cpf" inputmode="numeric" maxlength="14" required placeholder="000.000.000-00" /></label>
-          <label class="field"><span>Data de nascimento *</span><input id="nascimento" type="date" required /></label>
-          <label class="field field-span-2"><span>Endereço completo *</span><input id="endereco" autocomplete="street-address" maxlength="120" required placeholder="Rua, número, bairro" /></label>
-          <label class="field"><span>Telefone *</span><input id="telefone" type="tel" inputmode="tel" maxlength="16" required placeholder="(69) 99999-9999" /></label>
-          <label class="field"><span>Modalidade(s) *</span><input id="modalidades" maxlength="80" required placeholder="Ex.: Vôlei adaptado" /></label>
-          <label class="field field-span-2"><span>Delegação/Equipe *</span><input id="delegacao" maxlength="80" required placeholder="Nome da delegação ou equipe" /></label>
-        </div>
-        <div class="divider"></div>
-        <div class="subhead"><h3>Contato para emergência</h3><p>Informe alguém que possa ser contatado se necessário.</p></div>
-        <div class="form-grid">
-          <label class="field field-span-2"><span>Nome *</span><input id="emergenciaNome" maxlength="90" required /></label>
-          <label class="field"><span>Parentesco *</span><input id="parentesco" maxlength="50" required placeholder="Ex.: Filho(a)" /></label>
-          <label class="field"><span>Telefone *</span><input id="emergenciaTelefone" type="tel" inputmode="tel" maxlength="16" required placeholder="(69) 99999-9999" /></label>
-        </div>
-        <div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Continuar <span>→</span></button></div>
-      </section>
-
-      <section class="panel step-panel" data-step-panel="2" hidden>
-        <div class="panel-head">
-          <div><span class="section-kicker">Etapa 2 de 3</span><h2>Leia o termo</h2></div>
-          <p>O conteúdo abaixo é o mesmo do documento que será gerado.</p>
-        </div>
-        <article class="term-box" tabindex="0">
-          <h3>TERMO DE RESPONSABILIDADE, DECLARAÇÃO DE APTIDÃO E ASSUNÇÃO DE RISCOS</h3>
-          <h4>JOGOS MUNICIPAIS DA TERCEIRA IDADE – JOMTI 2026</h4>
-          <p>Eu, <strong data-preview="nome">[nome do atleta]</strong>, CPF nº <strong data-preview="cpf">[CPF]</strong>, data de nascimento <strong data-preview="nascimento">[data]</strong>, residente e domiciliado(a) à <strong data-preview="endereco">[endereço]</strong>, telefone <strong data-preview="telefone">[telefone]</strong>, na condição de atleta participante dos JOGOS MUNICIPAIS DA TERCEIRA IDADE – JOMTI 2026, promovidos pela Prefeitura Municipal de Porto Velho, por meio da Secretaria Municipal de Turismo, Esporte e Lazer – SEMTEL, DECLARO, para os devidos fins, que:</p>
-          <p><strong>1.</strong> Estou ciente das características das modalidades esportivas e recreativas das quais participarei, bem como dos esforços físicos e dos riscos inerentes à prática de atividades físicas e esportivas.</p>
-          <p><strong>2.</strong> Declaro, sob minha responsabilidade, encontrar-me em condições físicas e de saúde compatíveis com a participação no evento, responsabilizando-me pela avaliação prévia de minhas condições de saúde e pela observância de eventuais recomendações ou restrições médicas.</p>
-          <p><strong>3.</strong> Comprometo-me a informar previamente à organização qualquer condição de saúde, limitação física, uso contínuo de medicamentos ou outra circunstância relevante que possa interferir na minha participação segura nas atividades.</p>
-          <p><strong>4.</strong> Declaro estar ciente de que a participação nas modalidades poderá envolver riscos inerentes à prática esportiva, tais como quedas, contusões, lesões musculares, alterações de pressão arterial, mal-estar ou outras intercorrências próprias da realização de esforço físico.</p>
-          <p><strong>5.</strong> Assumo a responsabilidade pelos riscos inerentes à minha participação voluntária no evento, especialmente aqueles relacionados às minhas condições pessoais de saúde, ao descumprimento de orientações técnicas ou médicas e à omissão de informações relevantes sobre meu estado de saúde.</p>
-          <p><strong>6.</strong> Comprometo-me a respeitar integralmente os regulamentos do evento, as normas das modalidades, as orientações da Coordenação Geral, da arbitragem, dos profissionais responsáveis e, quando houver, da equipe de saúde.</p>
-          <p><strong>7.</strong> Estou ciente de que poderei ser impedido(a) de participar ou ter minha participação interrompida caso sejam identificadas condições que possam representar risco à minha saúde ou integridade física.</p>
-          <p><strong>8.</strong> Autorizo, em caso de acidente, mal-estar ou qualquer intercorrência durante o evento, a realização de primeiros socorros e, quando necessário, meu encaminhamento para unidade de atendimento de saúde, ficando autorizada a organização a acionar os serviços públicos de urgência e emergência.</p>
-          <p><strong>9.</strong> Reconheço que a organização do JOMTI 2026 não poderá ser responsabilizada por danos decorrentes exclusivamente de condições de saúde preexistentes não informadas, do descumprimento de orientação médica ou técnica, de conduta imprudente do próprio participante ou dos riscos normalmente inerentes à prática esportiva, ressalvadas as hipóteses de responsabilidade legalmente atribuíveis à organização.</p>
-          <p><strong>10.</strong> Declaro que todas as informações prestadas neste Termo são verdadeiras e que participo do evento de forma livre, consciente e voluntária.</p>
-          <p>Por ser expressão da verdade, firmo o presente Termo de Responsabilidade, Declaração de Aptidão e Assunção de Riscos, declarando estar plenamente ciente de seu conteúdo.</p>
-        </article>
-        <div class="consents">
-          <label class="check"><input id="consentTerm" type="checkbox" required /><span>Li o Termo de Responsabilidade e declaro estar ciente de seu conteúdo.</span></label>
-          <label class="check"><input id="consentData" type="checkbox" required /><span>Confirmo que os dados informados são verdadeiros e autorizo sua inserção no PDF.</span></label>
-        </div>
-        <div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Continuar <span>→</span></button></div>
-      </section>
-
-      <section class="panel step-panel" data-step-panel="3" hidden>
-        <div class="panel-head">
-          <div><span class="section-kicker">Etapa 3 de 3</span><h2>Assinatura opcional</h2></div>
-          <p>Você pode assinar agora ou gerar o termo com o campo de assinatura em branco.</p>
-        </div>
-        <div class="signature-card">
-          <div class="signature-label"><strong>Assinatura do(a) atleta <span style="font-weight:600;color:#64748b">(opcional)</span></strong><span>No celular, use o dedo. No computador, use o mouse.</span></div>
-          <div class="canvas-wrap"><canvas id="signatureCanvas" aria-label="Área opcional para assinatura"></canvas><span class="sign-hint" id="signHint">✍️ Assine aqui, se desejar</span></div>
-          <div class="signature-tools"><button class="link-btn" id="clearSignature" type="button">Limpar assinatura</button></div>
-        </div>
-        <div class="date-row">
-          <label class="field"><span>Data do termo *</span><input id="dataAssinatura" type="date" required /></label>
-          <div class="security-note"><span>🔒</span><div><strong>Privacidade por padrão</strong><small>Os dados e a assinatura, quando houver, são processados no seu dispositivo.</small></div></div>
-        </div>
-        <div id="errorBox" class="error-box" role="alert" hidden></div>
-        <div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Gerar termo em PDF</span><span class="spinner" hidden></span></button></div>
-      </section>
-    </form>
-
-    <section class="success-card" id="successCard" hidden>
-      <div class="success-icon">✓</div>
-      <div><span class="section-kicker">Documento pronto</span><h2>Termo gerado com sucesso</h2><p id="successMessage">O PDF foi gerado com os dados preenchidos.</p></div>
-      <div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><a class="btn btn-ghost" href="https://forms.gle/JR646h2VZHAkoMfr7" target="_blank" rel="noopener">Voltar para a inscrição ↗</a></div>
-    </section>
-  </main>
-
-  <footer><div class="shell"><span>Assinador GG Digital</span><span>JOMTI 2026 • Versão teste</span></div></footer>
   <script type="module" src="/main.js"></script>
 </body>
 </html>
