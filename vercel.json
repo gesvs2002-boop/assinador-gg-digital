@@ -2,17 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/assets/JOMTI_2026_Termo_Responsabilidade.pdf",
-      "destination": "/api/template"
-    }
-  ],
-  "functions": {
-    "api/template.js": {
-      "includeFiles": "Assinador_GG_Digital_JOMTI_2026_MVP.zip"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
