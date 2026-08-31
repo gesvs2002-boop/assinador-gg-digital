@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Interação UNISAPIENS 2026 | Assinador GG Digital</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .mode-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mode-choice label{border:1px solid #ccd6e4;border-radius:12px;padding:14px;display:flex;gap:9px;align-items:center;cursor:pointer}.mode-choice input{accent-color:#2563eb}.athlete-section{border:1px solid #dce4ee;border-radius:16px;padding:18px;background:#f8fafc;margin-top:18px}.athlete-section h3{margin:0 0 4px}.athlete-section p{margin:0 0 14px;color:#64748b;font-size:13px}.athlete-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}.athlete-list label{display:flex;align-items:center;gap:8px}.athlete-list b{width:24px;color:#64748b;font-size:12px;text-align:right}.athlete-list input{width:100%;height:44px;border:1px solid #ccd6e4;border-radius:10px;padding:0 12px}.rules-compact{display:grid;gap:10px}.rule{padding:12px 14px;border:1px solid #dce4ee;border-radius:12px;background:#f8fafc;font-size:13px;color:#334155}.score-strip{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.score-strip span{background:#eaf1ff;color:#1746b6;border-radius:999px;padding:8px 10px;font-weight:800;font-size:12px}.summary-card{border:1px solid #dce4ee;border-radius:14px;padding:16px;background:#fff}.summary-card p{margin:5px 0;color:#475569}.signature-card.compact .canvas-wrap{height:180px}@media(max-width:760px){.mode-choice,.athlete-list{grid-template-columns:1fr}.athlete-section{padding:14px}}
+  </style>
+</head>
+<body>
+<header class="topbar"><div class="shell topbar-inner"><a class="brand" href="/"><span class="brand-mark">GG</span><span class="brand-copy"><strong>Assinador</strong><small>GG Digital</small></span></a><a class="privacy-pill" href="/" style="text-decoration:none">← Modelos</a></div></header>
+<main class="shell main-shell">
+  <section class="hero"><div><span class="eyebrow">INTERAÇÃO UNISAPIENS 2026</span><h1>Ficha de Inscrição</h1><p>Cadastre a turma, o líder de sala e os atletas de cada modalidade. Ao final, gere a ficha completa em PDF.</p></div></section>
+  <ol class="steps"><li class="step is-active" data-step-pill="1"><span>1</span><div><strong>Turma</strong><small>Identificação</small></div></li><li class="step" data-step-pill="2"><span>2</span><div><strong>Atletas</strong><small>Modalidades</small></div></li><li class="step" data-step-pill="3"><span>3</span><div><strong>Finalizar</strong><small>Revisar e gerar</small></div></li></ol>
+
+  <form id="interacaoForm" novalidate>
+    <section class="panel step-panel is-active" data-step-panel="1">
+      <div class="panel-head"><div><span class="section-kicker">Etapa 1 de 3</span><h2>Identificação da turma</h2></div><p>Período e modalidade de ensino identificam a equipe.</p></div>
+      <div class="form-grid">
+        <label class="field"><span>Período *</span><input id="periodo" required placeholder="Ex.: 4º período" /></label>
+        <div class="field"><span>Modalidade de ensino *</span><div class="mode-choice"><label><input type="radio" name="ensino" value="Presencial" required> Presencial</label><label><input type="radio" name="ensino" value="Semipresencial" required> Semipresencial</label></div></div>
+        <label class="field field-span-2"><span>Turma / identificação</span><input id="turmaId" placeholder="Ex.: Turma A, noturno, sala 203" /></label>
+        <label class="field"><span>Líder de sala responsável *</span><input id="lider" required placeholder="Nome completo" /></label>
+        <label class="field"><span>Telefone do líder *</span><input id="telefoneLider" type="tel" inputmode="tel" maxlength="16" required placeholder="(69) 99999-9999" /></label>
+      </div>
+      <div class="divider"></div>
+      <div class="subhead"><h3>Regulamento resumido</h3><p>Regras que acompanham a ficha de inscrição.</p></div>
+      <div class="rules-compact">
+        <div class="rule"><b>1.</b> O Interação UNISAPIENS integra e coloca em competição as turmas/períodos de Educação Física nas modalidades Cabo de Guerra, Prancha, Pula Corda e Queimada.</div>
+        <div class="rule"><b>2.</b> Cada atleta representa exclusivamente a própria turma, identificada pelo período e pela modalidade de ensino. <b>É proibida a participação de aluno por outra turma.</b></div>
+        <div class="rule"><b>3.</b> Cada modalidade pontua para a classificação geral: 1º lugar = 10 pontos, 2º lugar = 7 pontos e 3º lugar = 5 pontos.</div>
+        <div class="rule"><b>4.</b> A classificação geral será definida pela soma dos pontos das quatro modalidades. Em empate: maior número de 1º lugares, depois 2º e depois 3º lugares.</div>
+        <div class="rule"><b>5.</b> Participantes devem respeitar organização, arbitragem e normas de segurança. Condutas antidesportivas podem resultar em advertência ou desclassificação.</div>
+      </div>
+      <div class="score-strip"><span>🥇 1º = 10 pts</span><span>🥈 2º = 7 pts</span><span>🥉 3º = 5 pts</span></div>
+      <div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Continuar →</button></div>
+    </section>
+
+    <section class="panel step-panel" data-step-panel="2" hidden>
+      <div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Inscrição dos atletas</h2></div><p>Preencha apenas as vagas que a turma utilizar.</p></div>
+      <div class="athlete-section"><h3>🪢 Cabo de Guerra</h3><p>Modalidade em grupo • até 15 nomes.</p><div id="caboList" class="athlete-list"></div></div>
+      <div class="athlete-section"><h3>🔥 Queimada</h3><p>Modalidade em grupo • até 15 nomes.</p><div id="queimadaList" class="athlete-list"></div></div>
+      <div class="athlete-section"><h3>💪 Prancha</h3><p>Modalidade individual • até 5 nomes.</p><div id="pranchaList" class="athlete-list"></div></div>
+      <div class="athlete-section"><h3>🪢 Pula Corda</h3><p>Modalidade individual • até 5 nomes.</p><div id="cordaList" class="athlete-list"></div></div>
+      <div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar →</button></div>
+    </section>
+
+    <section class="panel step-panel" data-step-panel="3" hidden>
+      <div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Revisar e gerar</h2></div><p>Confira os dados antes de baixar a ficha.</p></div>
+      <div class="summary-card" id="summary"></div>
+      <div class="divider"></div>
+      <div class="signature-card compact"><div class="signature-label"><strong>Assinatura do líder de sala <small style="font-weight:500;color:#64748b">(opcional)</small></strong><span>Assine agora ou deixe o campo em branco para assinatura posterior.</span></div><div class="canvas-wrap"><canvas id="signatureCanvas"></canvas><span class="sign-hint" id="signHint">✍️ Assine aqui, se desejar</span></div><div class="signature-tools"><button class="link-btn" id="clearSignature" type="button">Limpar assinatura</button></div></div>
+      <div id="errorBox" class="error-box" hidden></div>
+      <div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Gerar ficha em PDF</span><span class="spinner" hidden></span></button></div>
+    </section>
+  </form>
+
+  <section class="success-card" id="successCard" hidden><div class="success-icon">✓</div><div><span class="section-kicker">Ficha pronta</span><h2>PDF gerado com sucesso</h2><p>Revise o arquivo e encaminhe à organização do Interação UNISAPIENS.</p></div><div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><a class="btn btn-ghost" href="/">Voltar aos modelos</a></div></section>
+</main>
+<footer><div class="shell"><span>Assinador GG Digital</span><span>Interação UNISAPIENS 2026</span></div></footer>
+<script type="module" src="/interacao.js"></script>
+</body>
+</html>
