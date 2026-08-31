@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b1220" />
-  <meta name="description" content="Assinador GG Digital - preencha, assine e gere seu termo em PDF no próprio dispositivo." />
+  <meta name="description" content="Assinador GG Digital - preencha, assine opcionalmente e gere seu termo em PDF no próprio dispositivo." />
   <title>Assinador GG Digital | JOMTI 2026</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
@@ -24,7 +24,7 @@
       <div>
         <span class="eyebrow">JOMTI 2026</span>
         <h1>Termo de Responsabilidade</h1>
-        <p>Preencha seus dados, leia o termo, assine com o dedo ou mouse e baixe o PDF pronto para anexar na inscrição.</p>
+        <p>Preencha seus dados, leia o termo e gere o PDF. Se desejar, você também pode assinar com o dedo ou mouse antes de baixar.</p>
       </div>
       <a class="doc-link" href="/assets/JOMTI_2026_Termo_Responsabilidade.pdf" target="_blank" rel="noopener">Ver documento original ↗</a>
     </section>
@@ -32,7 +32,7 @@
     <ol class="steps" aria-label="Etapas">
       <li class="step is-active" data-step-pill="1"><span>1</span><div><strong>Dados</strong><small>Atleta e emergência</small></div></li>
       <li class="step" data-step-pill="2"><span>2</span><div><strong>Termo</strong><small>Leitura e ciência</small></div></li>
-      <li class="step" data-step-pill="3"><span>3</span><div><strong>Assinatura</strong><small>Assinar e baixar</small></div></li>
+      <li class="step" data-step-pill="3"><span>3</span><div><strong>Finalizar</strong><small>Assinatura opcional e PDF</small></div></li>
     </ol>
 
     <form id="signerForm" novalidate>
@@ -90,26 +90,26 @@
 
       <section class="panel step-panel" data-step-panel="3" hidden>
         <div class="panel-head">
-          <div><span class="section-kicker">Etapa 3 de 3</span><h2>Assine no quadro</h2></div>
-          <p>No celular, use o dedo. No computador, use o mouse.</p>
+          <div><span class="section-kicker">Etapa 3 de 3</span><h2>Assinatura opcional</h2></div>
+          <p>Você pode assinar agora ou gerar o termo com o campo de assinatura em branco.</p>
         </div>
         <div class="signature-card">
-          <div class="signature-label"><strong>Assinatura do(a) atleta</strong><span>Assine dentro da área abaixo</span></div>
-          <div class="canvas-wrap"><canvas id="signatureCanvas" aria-label="Área para assinatura"></canvas><span class="sign-hint" id="signHint">✍️ Assine aqui</span></div>
+          <div class="signature-label"><strong>Assinatura do(a) atleta <span style="font-weight:600;color:#64748b">(opcional)</span></strong><span>No celular, use o dedo. No computador, use o mouse.</span></div>
+          <div class="canvas-wrap"><canvas id="signatureCanvas" aria-label="Área opcional para assinatura"></canvas><span class="sign-hint" id="signHint">✍️ Assine aqui, se desejar</span></div>
           <div class="signature-tools"><button class="link-btn" id="clearSignature" type="button">Limpar assinatura</button></div>
         </div>
         <div class="date-row">
-          <label class="field"><span>Data da assinatura *</span><input id="dataAssinatura" type="date" required /></label>
-          <div class="security-note"><span>🔒</span><div><strong>Privacidade por padrão</strong><small>Os dados e a assinatura são processados no seu dispositivo.</small></div></div>
+          <label class="field"><span>Data do termo *</span><input id="dataAssinatura" type="date" required /></label>
+          <div class="security-note"><span>🔒</span><div><strong>Privacidade por padrão</strong><small>Os dados e a assinatura, quando houver, são processados no seu dispositivo.</small></div></div>
         </div>
         <div id="errorBox" class="error-box" role="alert" hidden></div>
-        <div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Gerar termo assinado</span><span class="spinner" hidden></span></button></div>
+        <div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Gerar termo em PDF</span><span class="spinner" hidden></span></button></div>
       </section>
     </form>
 
     <section class="success-card" id="successCard" hidden>
       <div class="success-icon">✓</div>
-      <div><span class="section-kicker">Documento pronto</span><h2>Termo gerado com sucesso</h2><p>O arquivo baixado é um PDF de 2 páginas com os dados e a assinatura inseridos no modelo original.</p></div>
+      <div><span class="section-kicker">Documento pronto</span><h2>Termo gerado com sucesso</h2><p id="successMessage">O PDF foi gerado com os dados preenchidos.</p></div>
       <div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><a class="btn btn-ghost" href="https://forms.gle/JR646h2VZHAkoMfr7" target="_blank" rel="noopener">Voltar para a inscrição ↗</a></div>
     </section>
   </main>
