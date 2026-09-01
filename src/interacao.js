@@ -1,6 +1,6 @@
 import { PDF, modelHeader, successHtml, signatureStep, createSignature, formatPhone, safeName, drawSignature, dataUrlBytes, finishDownload } from './core.js';
 
-const REGULATION = `<div class="mini-regulation"><h3>Regulamento resumido</h3><ol><li>O Interação UNISAPIENS é uma atividade de integração e competição entre as turmas/períodos do curso de Educação Física.</li><li>As modalidades serão: Cabo de Guerra, Prancha, Pula Corda e Queimada.</li><li>Cada atleta poderá representar somente a sua própria turma, sendo vedada a participação por outra turma/período.</li><li>Em cada prova, a pontuação será: <strong>1º lugar = 10 pontos</strong>, <strong>2º lugar = 7 pontos</strong> e <strong>3º lugar = 5 pontos</strong>.</li><li>A classificação geral será definida pela soma dos pontos obtidos pela turma nas quatro modalidades.</li><li>Em caso de empate na pontuação geral, terá vantagem a turma com maior número de 1º lugares; persistindo o empate, serão considerados os 2º lugares e, depois, os 3º lugares.</li><li>Todos os participantes deverão respeitar as orientações de segurança, arbitragem e organização do evento.</li></ol></div>`;
+const REGULATION = `<div class="mini-regulation"><h3>Regulamento resumido</h3><ol><li>O Interação UNISAPIENS é uma atividade de integração e competição entre as turmas/períodos do curso de Educação Física.</li><li>As modalidades serão: Cabo de Guerra, Prancha, Pula Corda, Queimada e Remo.</li><li>No Remo, cada turma poderá inscrever até 5 atletas. Cada participante deverá completar 2 km, e a classificação será definida pelo menor tempo de conclusão.</li><li>Cada atleta poderá representar somente a sua própria turma, sendo vedada a participação por outra turma/período.</li><li>Em cada prova, a pontuação será: <strong>1º lugar = 10 pontos</strong>, <strong>2º lugar = 7 pontos</strong> e <strong>3º lugar = 5 pontos</strong>.</li><li>A classificação geral será definida pela soma dos pontos obtidos pela turma nas cinco modalidades.</li><li>Em caso de empate na pontuação geral, terá vantagem a turma com maior número de 1º lugares; persistindo o empate, serão considerados os 2º lugares e, depois, os 3º lugares.</li><li>Todos os participantes deverão respeitar as orientações de segurança, arbitragem e organização do evento.</li></ol></div>`;
 
 const COLORS = {
   ink: PDF.rgb(0.06, 0.08, 0.13),
@@ -89,7 +89,7 @@ async function createInteracaoPdf(data, signatureDataUrl) {
   const bold = await pdf.embedFont(PDF.StandardFonts.HelveticaBold);
   const fonts = { regular, bold };
   const size = [612, 792];
-  const [p1, p2, p3, p4] = [pdf.addPage(size), pdf.addPage(size), pdf.addPage(size), pdf.addPage(size)];
+  const [p1, p2, p3, p4, p5] = [pdf.addPage(size), pdf.addPage(size), pdf.addPage(size), pdf.addPage(size), pdf.addPage(size)];
 
   header(p1, fonts, 'INTERAÇÃO UNISAPIENS 2026', 'Ficha de Inscrição', 'Competição de integração entre os períodos do curso de Educação Física');
   fieldLine(p1, fonts, 'Período', data.periodo, 42, 600, 248);
@@ -100,10 +100,11 @@ async function createInteracaoPdf(data, signatureDataUrl) {
   p1.drawText('REGULAMENTO RESUMIDO', { x: 42, y: 520, size: 10, font: bold, color: COLORS.blue });
   const rules = [
     'O Interação UNISAPIENS é uma atividade de integração e competição entre as turmas/períodos do curso de Educação Física.',
-    'As modalidades são Cabo de Guerra, Prancha, Pula Corda e Queimada.',
+    'As modalidades são Cabo de Guerra, Prancha, Pula Corda, Queimada e Remo.',
+    'No Remo, cada turma poderá inscrever até 5 atletas. Cada participante deverá completar 2 km; vence quem concluir a distância em menor tempo.',
     'Cada atleta representa exclusivamente a própria turma. É proibida a participação por outra turma ou período.',
     'Cada prova pontua para a classificação geral: 1º lugar = 10 pontos; 2º lugar = 7 pontos; 3º lugar = 5 pontos.',
-    'A classificação geral será definida pela soma dos pontos obtidos pela turma nas quatro modalidades.',
+    'A classificação geral será definida pela soma dos pontos obtidos pela turma nas cinco modalidades.',
     'Em caso de empate: maior número de 1º lugares; depois 2º lugares; depois 3º lugares.',
     'Os participantes deverão cumprir as orientações de segurança, arbitragem e organização do evento.'
   ];
@@ -143,6 +144,8 @@ async function createInteracaoPdf(data, signatureDataUrl) {
     if (name) textFit(p4, regular, name, 80, y + 4, 472, 9.4);
   });
 
+  rosterPage(p5, fonts, 'Remo', 'Prova de 2 km • vence o menor tempo • até 5 atletas na ficha', data.remo, data.periodo, data.formato);
+
   p4.drawRectangle({ x: 42, y: 128, width: 528, height: 82, color: COLORS.soft, borderColor: COLORS.line, borderWidth: 0.8 });
   p4.drawText('DECLARAÇÃO DO LÍDER DE SALA', { x: 56, y: 190, size: 8.8, font: bold, color: COLORS.blue });
   drawWrapped(p4, regular, `Declaro que os nomes informados nesta ficha pertencem à turma ${data.periodo} • ${data.formato} e que nenhum atleta foi inscrito para representar outra turma. Responsável: ${data.lider} • ${data.telefone}.`, 56, 172, 500, 8.5, 10.8);
@@ -167,7 +170,7 @@ export function renderInteracao(app, model, goHome, store) {
       <div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Inscrever atletas →</button></div>
     </section>
     <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Inscrição dos atletas</h2></div><p>Preencha apenas os nomes que participarão em cada modalidade.</p></div>
-      ${roster('cabo',15,'Cabo de Guerra','Modalidade em grupo')}${roster('queimada',15,'Queimada','Modalidade em grupo')}${roster('prancha',5,'Prancha','Modalidade individual')}${roster('pulaCorda',5,'Pula Corda','Modalidade individual')}
+      ${roster('cabo',15,'Cabo de Guerra','Modalidade em grupo')}${roster('queimada',15,'Queimada','Modalidade em grupo')}${roster('prancha',5,'Prancha','Modalidade individual')}${roster('pulaCorda',5,'Pula Corda','Modalidade individual')}${roster('remo',5,'Remo','Prova individual de 2 km • vence o menor tempo')}
       <div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar e gerar →</button></div>
     </section>
     ${signatureStep('Assinatura do líder de sala','A assinatura é opcional. Você também pode gerar a ficha para assinar posteriormente.',false)}
@@ -198,7 +201,8 @@ export function renderInteracao(app, model, goHome, store) {
         cabo:rosterValues('cabo',15),
         queimada:rosterValues('queimada',15),
         prancha:rosterValues('prancha',5),
-        pulaCorda:rosterValues('pulaCorda',5)
+        pulaCorda:rosterValues('pulaCorda',5),
+        remo:rosterValues('remo',5)
       }, sig);
       finishDownload(app,bytes,`${safeName(periodo)}_${safeName(formato)}.pdf`,!!sig,store);
     } catch(err) {
