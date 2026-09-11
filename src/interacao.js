@@ -51,7 +51,7 @@ function header(page, fonts, kicker, title, subtitle='') {
   const { regular, bold } = fonts;
   page.drawRectangle({ x: 0, y: 736, width: 612, height: 56, color: COLORS.ink });
   page.drawText('GG DIGITAL', { x: 42, y: 761, size: 8.5, font: bold, color: COLORS.white });
-  page.drawText('ASSINADOR', { x: 42, y: 746, size: 8, font: regular, color: PDF.rgb(0.76,0.80,0.86) });
+  page.drawText('GG INSCRIÇÕES', { x: 42, y: 746, size: 8, font: regular, color: PDF.rgb(0.76,0.80,0.86) });
   page.drawText(kicker, { x: 42, y: 711, size: 9, font: bold, color: COLORS.gold });
   page.drawText(title, { x: 42, y: 684, size: 22, font: bold, color: COLORS.ink });
   if (subtitle) page.drawText(subtitle, { x: 42, y: 666, size: 9.2, font: regular, color: COLORS.muted });
@@ -75,15 +75,15 @@ function rosterPage(page, fonts, title, subtitle, names, periodo, formato) {
     page.drawLine({ start: { x: 72, y }, end: { x: 560, y }, thickness: 0.7, color: COLORS.line });
     if (name) textFit(page, fonts.regular, name, 80, y + 4, 472, 9.4);
   });
-  page.drawText('Inscrição de atletas por modalidade • Assinador GG Digital', { x: 42, y: 36, size: 7.5, font: fonts.regular, color: COLORS.muted });
+  page.drawText('Inscrição de atletas por modalidade • GG Inscrições', { x: 42, y: 36, size: 7.5, font: fonts.regular, color: COLORS.muted });
 }
 
 async function createInteracaoPdf(data, signatureDataUrl) {
   const pdf = await PDF.PDFDocument.create();
   pdf.setTitle('Ficha de Inscrição - Interação UNISAPIENS 2026');
   pdf.setSubject('Educação Física - Interação UNISAPIENS 2026');
-  pdf.setCreator('Assinador GG Digital');
-  pdf.setProducer('Assinador GG Digital');
+  pdf.setCreator('GG Inscrições • GG Digital');
+  pdf.setProducer('GG Inscrições • GG Digital');
 
   const regular = await pdf.embedFont(PDF.StandardFonts.Helvetica);
   const bold = await pdf.embedFont(PDF.StandardFonts.HelveticaBold);
@@ -120,7 +120,7 @@ async function createInteracaoPdf(data, signatureDataUrl) {
   p1.drawText('2º  7 PONTOS', { x: 225, y: 190, size: 12, font: bold, color: COLORS.blue });
   p1.drawText('3º  5 PONTOS', { x: 392, y: 190, size: 12, font: bold, color: COLORS.ink });
   p1.drawText('A inscrição nesta ficha vincula os atletas exclusivamente à turma identificada acima.', { x: 42, y: 140, size: 8.7, font: bold, color: COLORS.ink });
-  p1.drawText('Assinador GG Digital • Documento gerado no dispositivo do responsável', { x: 42, y: 36, size: 7.5, font: regular, color: COLORS.muted });
+  p1.drawText('GG Inscrições • Documento gerado no dispositivo do responsável', { x: 42, y: 36, size: 7.5, font: regular, color: COLORS.muted });
 
   rosterPage(p2, fonts, 'Cabo de Guerra', 'Modalidade em grupo • até 15 atletas na ficha', data.cabo, data.periodo, data.formato);
   rosterPage(p3, fonts, 'Queimada', 'Modalidade em grupo • até 15 atletas na ficha', data.queimada, data.periodo, data.formato);
@@ -156,7 +156,7 @@ async function createInteracaoPdf(data, signatureDataUrl) {
     const png = await pdf.embedPng(dataUrlBytes(signatureDataUrl));
     drawSignature(p4, png, { x: 108, y: 84, w: 220, h: 31 });
   }
-  p4.drawText('Assinador GG Digital • Interação UNISAPIENS 2026', { x: 42, y: 28, size: 7.5, font: regular, color: COLORS.muted });
+  p4.drawText('GG Inscrições • Interação UNISAPIENS 2026', { x: 42, y: 28, size: 7.5, font: regular, color: COLORS.muted });
 
   return pdf.save();
 }

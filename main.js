@@ -1,6 +1,7 @@
 import { MODELS, esc } from './src/core.js';
 import { renderJomti } from './src/jomti.js';
 import { renderInteracao } from './src/interacao.js';
+import { renderJief } from './src/jief.js';
 
 const app = document.getElementById('app');
 const brandHome = document.getElementById('brandHome');
@@ -9,7 +10,8 @@ const store = { url: null };
 const ADMIN_PATH = '/gg-admin-9f3c7e2a6b1d4c8f';
 const DOC_PATHS = {
   'jomti-2026': '/d/jomti-2026',
-  'interacao-unisapiens-2026': '/d/interacao-unisapiens-2026'
+  'interacao-unisapiens-2026': '/d/interacao-unisapiens-2026',
+  'jief-2026': '/d/jief-2026'
 };
 const PATH_TO_MODEL = Object.fromEntries(Object.entries(DOC_PATHS).map(([id, path]) => [path, id]));
 
@@ -34,9 +36,9 @@ function showNeutral() {
   app.innerHTML = `
     <section class="home-hero">
       <div>
-        <span class="eyebrow">ASSINADOR GG DIGITAL</span>
-        <h1>Acesse seu documento pelo link recebido.</h1>
-        <p>Este ambiente gera documentos em PDF a partir de formulários específicos. Para começar, utilize o link enviado pela organização responsável.</p>
+        <span class="eyebrow">GG INSCRIÇÕES</span>
+        <h1>Acesse sua inscrição pelo link recebido.</h1>
+        <p>Esta central reúne formulários e documentos de eventos. Para começar, utilize o link enviado pela organização responsável.</p>
       </div>
       <aside class="hero-note">
         <strong>Privacidade por padrão</strong>
@@ -45,8 +47,8 @@ function showNeutral() {
     </section>
     <section class="panel">
       <div class="panel-head">
-        <div><span class="section-kicker">Acesso direto</span><h2>Nenhum documento selecionado</h2></div>
-        <p>Solicite à organização o link específico do formulário que você precisa preencher.</p>
+        <div><span class="section-kicker">Acesso direto</span><h2>Nenhuma inscrição selecionada</h2></div>
+        <p>Solicite à organização o link específico da inscrição que você precisa preencher.</p>
       </div>
     </section>`;
 }
@@ -103,20 +105,20 @@ function showAdmin() {
   app.innerHTML = `
     <section class="home-hero">
       <div>
-        <span class="eyebrow">GG DIGITAL • ADMIN</span>
-        <h1>Painel de documentos</h1>
-        <p>Gerencie os modelos disponíveis e copie apenas o link do documento que deseja enviar.</p>
+        <span class="eyebrow">GG INSCRIÇÕES • PAINEL</span>
+        <h1>Central de inscrições</h1>
+        <p>Gerencie os formulários disponíveis e copie o link certo para cada competição.</p>
       </div>
       <aside class="hero-note">
         <strong>Painel reservado</strong>
-        <p>Esta rota não é exibida no ambiente público. Os links compartilháveis abrem somente o documento escolhido.</p>
+        <p>Esta rota não é exibida no ambiente público. Cada link compartilhável abre somente a inscrição escolhida.</p>
       </aside>
     </section>
 
     <section>
       <div class="toolbar">
-        <div><span class="section-kicker">Modelos</span><h2>Documentos disponíveis</h2></div>
-        <label class="search"><input id="modelSearch" type="search" placeholder="Buscar documento..." aria-label="Buscar documento"></label>
+        <div><span class="section-kicker">Inscrições</span><h2>Formulários disponíveis</h2></div>
+        <label class="search"><input id="modelSearch" type="search" placeholder="Buscar inscrição..." aria-label="Buscar inscrição"></label>
       </div>
       <div id="modelGrid" class="model-grid"></div>
     </section>`;
@@ -139,6 +141,7 @@ function openModel(id) {
   const exitPublic = () => location.assign('/');
   if (id === 'jomti-2026') renderJomti(app, model, exitPublic, store);
   else if (id === 'interacao-unisapiens-2026') renderInteracao(app, model, exitPublic, store);
+  else if (id === 'jief-2026') renderJief(app, model, exitPublic, store);
 }
 
 function route() {

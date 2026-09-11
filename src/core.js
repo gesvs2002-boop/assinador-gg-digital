@@ -12,6 +12,12 @@ export const MODELS = [
     description: 'Identifique a turma e inscreva atletas em Cabo de Guerra, Queimada, Prancha e Pula Corda.',
     pdfUrl: '/assets/Interacao_UNISAPIENS_2026_Ficha_Inscricao.pdf', pages: 4,
     tags: ['Turmas', 'Modalidades', 'Assinatura opcional']
+  },
+  {
+    id: 'jief-2026', icon: '🔥', title: 'JIEF 2026', subtitle: 'Ficha de inscrição por turma',
+    description: 'Monte os elencos, identifique reforços e gere a ficha da equipe para conferência da Atlética Anabólica.',
+    pdfUrl: '', pages: 0,
+    tags: ['Turmas', 'Elencos', 'Reforços', 'PDF']
   }
 ];
 
@@ -46,7 +52,7 @@ export function looksLikePdf(bytes) { return bytes?.length>5&&bytes[0]===0x25&&b
 export function modelHeader(model, steps) {
   return `<section class="model-hero">
     <div><span class="eyebrow">${esc(model.title)}</span><h1>${esc(model.subtitle)}</h1><p>${esc(model.description)}</p></div>
-    <div class="model-actions"><button class="link-button" data-home type="button">← Sair do documento</button><a class="doc-link" href="${model.pdfUrl}" target="_blank" rel="noopener">Ver PDF original ↗</a></div>
+    <div class="model-actions"><button class="link-button" data-home type="button">← Sair do documento</button>${model.pdfUrl ? `<a class="doc-link" href="${model.pdfUrl}" target="_blank" rel="noopener">Ver PDF original ↗</a>` : ''}</div>
   </section>
   <ol class="steps" aria-label="Etapas">${steps.map((s,i)=>`<li class="step ${i===0?'is-active':''}" data-step-pill="${i+1}"><span>${i+1}</span><div><strong>${esc(s[0])}</strong><small>${esc(s[1])}</small></div></li>`).join('')}</ol>`;
 }
