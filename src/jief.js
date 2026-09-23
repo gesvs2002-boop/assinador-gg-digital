@@ -7,6 +7,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_a3H97mJaw_R8OxV3bIwoUg_sHahj8nP
 
 const TURMAS = JIEF_2026.teams;
 const MODALITIES = JIEF_2026.modalities;
+const athleteCode = id => { const hex=String(id||'').replace(/-/g,'').toUpperCase(); return `JIEF-A${hex.slice(0,8)}${hex.slice(-8)}`; };
 
 async function loadJiefPaymentDetails() {
   const url = `${SUPABASE_URL}/rest/v1/gg_event_payment_settings?event_key=eq.jief-2026&select=event_key,price_cents,pix_key,recipient_name,recipient_city,payment_instructions`;
@@ -42,13 +43,15 @@ function roster(model) {
 }
 
 function athleteRow(model, index) {
+  const id = crypto.randomUUID();
   const originOptions = `<option value="${own}">Mesma turma</option>${TURMAS.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}`;
-  return `<div class="roster-field jief-row" data-athlete-row>
+  return `<div class="roster-field jief-row" data-athlete-row data-athlete-id="${id}">
     <span data-slot>${slots(model,index)}</span>
     <input data-athlete-name aria-label="Nome completo do atleta em ${esc(model.title)}" maxlength="90" placeholder="Nome completo" autocomplete="off">
     <select data-athlete-origin aria-label="Turma de origem do atleta">${originOptions}</select>
     ${model.mixed ? `<select data-athlete-gender aria-label="Gênero do atleta"><option value="">Gênero</option><option value="F">Feminino</option><option value="M">Masculino</option></select>` : ''}
     <button class="roster-remove" type="button" data-remove-athlete aria-label="Remover atleta de ${esc(model.title)}">×</button>
+    <div class="jief-identity-line"><span class="jief-athlete-code" data-athlete-code>${athleteCode(id)}</span><label>Mesmo atleta em outra modalidade <select data-athlete-link aria-label="Vincular atleta já informado"><option value="">Novo atleta</option></select></label><label class="jief-homonym" data-homonym-label hidden><input type="checkbox" data-homonym> Outra pessoa com o mesmo nome</label></div>
   </div>`;
 }
 
@@ -87,7 +90,7 @@ function regulation() {
 export function renderJief(app, model, goHome, store) {
   app.innerHTML = modelHeader(model,[['Turma','Equipe e responsável'],['Modalidades','Elencos e reforços'],['Finalizar','PDF para conferência']]) + `
     <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>Cada atleta paga uma única vez, mesmo que participe de várias modalidades. O líder também recebe orientações individuais após registrar a equipe.</small></div>
-    <details class="jief-public-pix" id="jiefPublicPix"><summary>Já consta em uma ficha? Ver dados Pix</summary><div id="jiefPublicPixBody"><p>Carregando dados Pix...</p></div></details>
+    <details class="jief-public-pix" id="jiefPublicPix"><summary>Consultar dados Pix para pagamento</summary><div id="jiefPublicPixBody"><p>Carregando dados Pix...</p></div></details>
     <form id="jiefForm" novalidate>
       <section class="panel" data-step-panel="1"><div class="panel-head"><div><span class="section-kicker">Etapa 1 de 3</span><h2>Identificação da equipe</h2></div><p>Use a turma oficial e defina o nome de guerra que aparecerá no JIEF.</p></div>
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
@@ -106,7 +109,7 @@ export function renderJief(app, model, goHome, store) {
     const body=app.querySelector('#jiefPublicPixBody');
     if(!body)return;
     if(!details){body.innerHTML='<p>Dados Pix indisponíveis no momento. Confirme diretamente com a organização antes de pagar.</p>';return;}
-    body.innerHTML=`<p>Use estes dados somente se você já foi incluído em uma ficha do JIEF. Pague <strong>${brl(details.price_cents)} uma vez por atleta</strong> e identifique seu nome e turma no comprovante.</p><div class="jief-pix-key"><small>CHAVE PIX · ${esc(details.recipient_name)} · ${esc(details.recipient_city)}</small><code>${esc(details.pix_key)}</code><button class="btn btn-ghost" type="button" id="jiefCopyPublicPix">Copiar chave Pix</button></div>${details.payment_instructions?`<p class="jief-payment-instructions">${esc(details.payment_instructions)}</p>`:''}<p class="jief-payment-caution">A organização confirma o pagamento manualmente.</p>`;
+    body.innerHTML=`<p>Pague somente depois que o líder incluir seu nome na inscrição da equipe. O valor é <strong>${brl(details.price_cents)} uma vez por atleta</strong>. Identifique seu nome e a turma no comprovante.</p><div class="jief-pix-key"><small>CHAVE PIX · ${esc(details.recipient_name)} · ${esc(details.recipient_city)}</small><code>${esc(details.pix_key)}</code><button class="btn btn-ghost" type="button" id="jiefCopyPublicPix">Copiar chave Pix</button></div>${details.payment_instructions?`<p class="jief-payment-instructions">${esc(details.payment_instructions)}</p>`:''}<p class="jief-payment-caution">A organização confirma o pagamento manualmente.</p>`;
     body.querySelector('#jiefCopyPublicPix').addEventListener('click',async event=>{
       try{await navigator.clipboard.writeText(details.pix_key);event.currentTarget.textContent='Chave copiada';}catch{event.currentTarget.textContent='Não foi possível copiar';}
     });
@@ -125,12 +128,33 @@ export function renderJief(app, model, goHome, store) {
     if(block.querySelector('[data-enroll]').checked)block.querySelector('[data-roster-selection]').textContent=`Selecionada · ${rows.length}/${model.max}`;
     block.querySelector('[data-add-athlete]').disabled=rows.length>=model.max;
   };
+  const athleteRows=()=>[...app.querySelectorAll('[data-athlete-row]')];
+  const refreshAthleteIdentity=()=>{
+    const rows=athleteRows();
+    const named=rows.filter(row=>row.closest('[data-roster]').querySelector('[data-enroll]').checked&&row.querySelector('[data-athlete-name]').value.trim());
+    const firstByName=new Map();
+    rows.forEach(row=>{
+      const id=row.dataset.athleteId;
+      row.querySelector('[data-athlete-code]').textContent=athleteCode(id);
+      const link=row.querySelector('[data-athlete-link]'),current=link.value;
+      const rosterId=row.closest('[data-roster]').dataset.roster;
+      const options=[...new Map(named.filter(other=>other!==row&&other.closest('[data-roster]').dataset.roster!==rosterId&&(other.dataset.athleteId!==id||other.dataset.athleteId===row.dataset.linkedId)).map(other=>[other.dataset.athleteId,other.querySelector('[data-athlete-name]').value.trim()])).entries()];
+      link.innerHTML='<option value="">Novo atleta</option>'+options.map(([personId,name])=>`<option value="${personId}">${esc(name)} · ${athleteCode(personId)}</option>`).join('');
+      link.value=options.some(([personId])=>personId===current)?current:'';
+      const name=row.querySelector('[data-athlete-name]').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+      const repeated=name&&firstByName.has(name)&&firstByName.get(name)!==id&&!row.dataset.linkedId;
+      row.querySelector('[data-homonym-label]').hidden=!repeated;
+      if(!repeated)row.querySelector('[data-homonym]').checked=false;
+      if(name&&!firstByName.has(name))firstByName.set(name,id);
+    });
+  };
   app.querySelectorAll('[data-enroll]').forEach(checkbox=>checkbox.addEventListener('change',()=>{
     const block=checkbox.closest('[data-roster]');
     const selected=checkbox.checked;
     block.querySelector('[data-roster-content]').hidden=!selected;
     block.querySelector('[data-roster-selection]').textContent=selected?`Selecionada · ${block.querySelectorAll('[data-athlete-row]').length}/${MODALITIES.find(item=>item.id===block.dataset.roster).max}`:'Não selecionada';
     block.classList.toggle('is-enrolled',selected);
+    refreshAthleteIdentity();
     showRosterIssues([]);
   }));
   app.querySelectorAll('[data-add-athlete]').forEach(button=>button.addEventListener('click',()=>{
@@ -139,16 +163,39 @@ export function renderJief(app, model, goHome, store) {
     if(grid.querySelectorAll('[data-athlete-row]').length>=model.max)return;
     grid.insertAdjacentHTML('beforeend',athleteRow(model,grid.children.length));
     updateRosterCount(model);
+    refreshAthleteIdentity();
     grid.lastElementChild.querySelector('[data-athlete-name]').focus();
   }));
+  app.addEventListener('input',event=>{
+    if(!event.target.matches('[data-athlete-name]'))return;
+    const row=event.target.closest('[data-athlete-row]');
+    athleteRows().filter(other=>other!==row&&other.dataset.athleteId===row.dataset.athleteId)
+      .forEach(other=>{other.querySelector('[data-athlete-name]').value=event.target.value;});
+    refreshAthleteIdentity();
+  });
+  app.addEventListener('change',event=>{
+    const link=event.target.closest('[data-athlete-link]');
+    if(!link)return;
+    const row=link.closest('[data-athlete-row]'),target=athleteRows().find(other=>other!==row&&other.dataset.athleteId===link.value);
+    if(target){
+      row.dataset.athleteId=target.dataset.athleteId;
+      row.dataset.linkedId=target.dataset.athleteId;
+      row.querySelector('[data-athlete-name]').value=target.querySelector('[data-athlete-name]').value;
+      row.querySelector('[data-athlete-origin]').value=target.querySelector('[data-athlete-origin]').value;
+      if(row.querySelector('[data-athlete-gender]')&&target.querySelector('[data-athlete-gender]'))row.querySelector('[data-athlete-gender]').value=target.querySelector('[data-athlete-gender]').value;
+    }else{row.dataset.athleteId=crypto.randomUUID();delete row.dataset.linkedId;}
+    refreshAthleteIdentity();
+  });
   app.addEventListener('click',event=>{
     const button=event.target.closest('[data-remove-athlete]');
     if(!button)return;
     const block=button.closest('[data-roster]');
     button.closest('[data-athlete-row]').remove();
     updateRosterCount(MODALITIES.find(item=>item.id===block.dataset.roster));
+    refreshAthleteIdentity();
   });
   const readRosters=()=>MODALITIES.filter(model=>app.querySelector(`[data-enroll="${model.id}"]`).checked).map(model=>({ ...model, entries:[...app.querySelectorAll(`[data-entries="${model.id}"] [data-athlete-row]`)].map(row=>({
+    athlete_id:row.dataset.athleteId,
     name:row.querySelector('[data-athlete-name]').value.trim(),
     origin:row.querySelector('[data-athlete-origin]').value||own,
     gender:row.querySelector('[data-athlete-gender]')?.value||''
@@ -158,27 +205,37 @@ export function renderJief(app, model, goHome, store) {
       if(model.entries.length<model.min)issues.push(`${model.title}: inclua pelo menos ${model.min} ${model.min===1?'participante':'participantes'}.`);
       if(model.entries.length && model.native){const local=model.entries.filter(entry=>entry.origin===own).length;if(local<model.native)issues.push(`${model.title}: inclua pelo menos ${model.native} atletas da própria turma.`);}
       if(model.entries.length && model.entries.some(entry=>!entry.gender) && model.mixed)issues.push(`${model.title}: informe o gênero de cada atleta.`);
-      const names=model.entries.map(entry=>entry.name.toLocaleLowerCase('pt-BR'));
-      if(new Set(names).size!==names.length)issues.push(`${model.title}: há atletas repetidos no mesmo elenco.`);
+      const ids=model.entries.map(entry=>entry.athlete_id);
+      if(new Set(ids).size!==ids.length)issues.push(`${model.title}: o mesmo atleta aparece duas vezes no elenco.`);
       if(model.entries.length && model.mixed){const starters=model.entries.slice(0,4);if(starters.length<4 || starters.filter(entry=>entry.gender==='F').length!==2 || starters.filter(entry=>entry.gender==='M').length!==2)issues.push(`${model.title}: os quatro titulares devem ser 2 mulheres e 2 homens.`);}
-    }); return issues;
+    });
+    const named=new Map(),idNames=new Map();
+    athleteRows().filter(row=>row.closest('[data-roster]').querySelector('[data-enroll]').checked).forEach(row=>{
+      const name=row.querySelector('[data-athlete-name]').value.trim();if(!name)return;
+      const key=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR'),id=row.dataset.athleteId;
+      if(named.has(key)&&named.get(key)!==id&&!row.dataset.linkedId&&!row.querySelector('[data-homonym]').checked)issues.push(`${name}: vincule o atleta já informado ou marque que é outra pessoa com o mesmo nome.`);
+      if(!named.has(key))named.set(key,id);
+      if(idNames.has(id)&&idNames.get(id)!==key)issues.push(`${name}: o código deste atleta está ligado a outro nome.`);
+      idNames.set(id,key);
+    });
+    return [...new Set(issues)];
   };
   const showRosterIssues=issues=>{const error=app.querySelector('#rosterError');error.textContent=issues.join(' ');error.hidden=!issues.length;if(issues.length)error.scrollIntoView({block:'center'});};
   const renderReview=()=>{const entered=readRosters().filter(item=>item.entries.length);app.querySelector('#jiefReview').innerHTML=`<p><strong>${esc(value('jiefNomeGuerra'))}</strong> · ${esc(value('jiefTurma'))} · Líder: ${esc(value('jiefLider'))}</p><ul>${entered.map(item=>`<li>${esc(item.title)}: ${item.entries.length} ${item.entries.length===1?'atleta':'atletas'}</li>`).join('')}</ul>`;};
   const renderPaymentResult=(data,code)=>{
     const mount=app.querySelector('#jiefPaymentResult');
-    const athletes=[...new Map(data.rosters.flatMap(roster=>roster.entries).map(entry=>[entry.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim(),entry.name])).values()];
+    const athletes=[...new Map(data.rosters.flatMap(roster=>roster.entries).map(entry=>[entry.athlete_id,entry])).values()];
     if(!paymentDetails){
       mount.innerHTML='<h2>Pagamento ainda indisponível</h2><p>A ficha foi registrada, mas os dados Pix não puderam ser carregados. Não pague com dados recebidos de terceiros; confirme diretamente com a organização.</p>';
     } else {
       const amount=brl(paymentDetails.price_cents);
-      mount.innerHTML=`<span class="section-kicker">PRÓXIMO PASSO · PAGAMENTO INDIVIDUAL</span><h2>Pix dos atletas</h2><p>Cada atleta abaixo paga <strong>${amount} uma vez no JIEF</strong>, mesmo em várias modalidades. A confirmação é feita manualmente pela organização.</p><div class="jief-payment-facts"><div><small>VALOR POR ATLETA</small><strong>${amount}</strong></div><div><small>RECEBEDOR</small><strong>${esc(paymentDetails.recipient_name)}</strong><span>${esc(paymentDetails.recipient_city)}</span></div></div><div class="jief-pix-key"><small>CHAVE PIX</small><code>${esc(paymentDetails.pix_key)}</code><button class="btn btn-ghost" id="jiefCopyPix" type="button">Copiar chave Pix</button></div>${paymentDetails.payment_instructions?`<p class="jief-payment-instructions">${esc(paymentDetails.payment_instructions)}</p>`:''}<div class="jief-athlete-payments"><h3>Compartilhe com os atletas <small>${athletes.length} ${athletes.length===1?'pessoa':'pessoas'}</small></h3><p>Peça que o comprovante identifique o nome do atleta e a turma. O líder pode copiar uma mensagem para cada pessoa.</p><ul>${athletes.map((name,index)=>`<li><span>${esc(name)}</span><button class="btn btn-ghost" type="button" data-copy-payment="${index}">Copiar orientação</button></li>`).join('')}</ul></div><p class="jief-payment-caution">O Pix não é confirmado automaticamente. Guarde o comprovante e aguarde a organização marcar o pagamento no painel.</p>`;
+      mount.innerHTML=`<span class="section-kicker">PRÓXIMO PASSO · PAGAMENTO INDIVIDUAL</span><h2>Pix dos atletas</h2><p>Cada atleta abaixo paga <strong>${amount} uma vez no JIEF</strong>, mesmo em várias modalidades. A confirmação é feita manualmente pela organização.</p><div class="jief-payment-facts"><div><small>VALOR POR ATLETA</small><strong>${amount}</strong></div><div><small>RECEBEDOR</small><strong>${esc(paymentDetails.recipient_name)}</strong><span>${esc(paymentDetails.recipient_city)}</span></div></div><div class="jief-pix-key"><small>CHAVE PIX</small><code>${esc(paymentDetails.pix_key)}</code><button class="btn btn-ghost" id="jiefCopyPix" type="button">Copiar chave Pix</button></div>${paymentDetails.payment_instructions?`<p class="jief-payment-instructions">${esc(paymentDetails.payment_instructions)}</p>`:''}<div class="jief-athlete-payments"><h3>Compartilhe com os atletas <small>${athletes.length} ${athletes.length===1?'pessoa':'pessoas'}</small></h3><p>Peça que o comprovante identifique o código do atleta, o nome e a turma. Um código vale para todas as modalidades em que ele aparece.</p><ul>${athletes.map((athlete,index)=>`<li><span>${esc(athlete.name)} <small>${athleteCode(athlete.athlete_id)}</small></span><button class="btn btn-ghost" type="button" data-copy-payment="${index}">Copiar orientação</button></li>`).join('')}</ul></div><p class="jief-payment-caution">O Pix não é confirmado automaticamente. Guarde o comprovante e aguarde a organização marcar o pagamento no painel.</p>`;
       mount.querySelector('#jiefCopyPix').addEventListener('click',async event=>{
         try{await navigator.clipboard.writeText(paymentDetails.pix_key);event.currentTarget.textContent='Chave copiada';}catch{event.currentTarget.textContent='Não foi possível copiar';}
       });
       mount.querySelectorAll('[data-copy-payment]').forEach(button=>button.addEventListener('click',async()=>{
-        const name=athletes[Number(button.dataset.copyPayment)];
-        const message=`JIEF 2026 · Inscrição ${code}\nAtleta: ${name}\nTurma: ${data.team}\nPix individual: ${amount}\nChave Pix: ${paymentDetails.pix_key}\nRecebedor: ${paymentDetails.recipient_name} (${paymentDetails.recipient_city})\n${paymentDetails.payment_instructions||'Identifique o nome do atleta no comprovante e envie à organização.'}\nA confirmação é manual pela organização.`;
+        const athlete=athletes[Number(button.dataset.copyPayment)];
+        const message=`JIEF 2026 · Inscrição ${code}\nAtleta: ${athlete.name}\nCódigo do atleta: ${athleteCode(athlete.athlete_id)}\nTurma: ${data.team}\nPix individual: ${amount}\nChave Pix: ${paymentDetails.pix_key}\nRecebedor: ${paymentDetails.recipient_name} (${paymentDetails.recipient_city})\n${paymentDetails.payment_instructions||'Identifique o código do atleta no comprovante e envie à organização.'}\nA confirmação é manual pela organização.`;
         try{await navigator.clipboard.writeText(message);button.textContent='Orientação copiada';}catch{button.textContent='Não foi possível copiar';}
       }));
     }
