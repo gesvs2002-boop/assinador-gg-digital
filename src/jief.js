@@ -17,11 +17,14 @@ const slots = (model, index) => {
 };
 
 function roster(model) {
-  return `<section class="roster-block" data-roster="${model.id}">
-    <div class="roster-head"><div><h3>${esc(model.title)}</h3><p>${esc(model.note)}</p></div><span class="count-badge">até ${model.max}</span></div>
-    <div class="roster-grid" data-entries="${model.id}"></div>
-    <div class="roster-tools"><span data-roster-count="${model.id}">Nenhum atleta adicionado</span><button class="btn btn-ghost" type="button" data-add-athlete="${model.id}">+ Adicionar atleta</button></div>
-  </section>`;
+  return `<details class="roster-block" data-roster="${model.id}">
+    <summary class="roster-head"><div><h3>${esc(model.title)}</h3><p>${esc(model.note)}</p></div><span class="count-badge">Mín. ${model.min} · Máx. ${model.max}</span><span class="roster-selection" data-roster-selection="${model.id}">Não selecionada</span></summary>
+    <div class="roster-body"><label class="roster-enroll"><input type="checkbox" data-enroll="${model.id}"><span>Inscrever nesta modalidade</span></label>
+      <div data-roster-content="${model.id}" hidden><p class="roster-limit">Inscreva de ${model.min} a ${model.max} ${model.max===1?'participante':'participantes'} nesta modalidade.</p><div class="roster-grid" data-entries="${model.id}"></div>
+        <div class="roster-tools"><span data-roster-count="${model.id}">Nenhum atleta adicionado</span><button class="btn btn-ghost" type="button" data-add-athlete="${model.id}">+ Adicionar atleta</button></div>
+      </div>
+    </div>
+  </details>`;
 }
 
 function athleteRow(model, index) {
@@ -142,7 +145,7 @@ export function renderJief(app, model, goHome, store) {
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
         ${regulation()}<div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Montar elencos →</button></div>
       </section>
-      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Adicione atletas somente nas modalidades em que a turma vai competir.</p></div>
+      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Abra uma modalidade, marque a participação e adicione os atletas. Modalidades não selecionadas não entram na ficha.</p></div>
         ${MODALITIES.map(roster).join('')}<div id="rosterError" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
       </section>
       <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>A ficha será registrada para conferência da Atlética e para cruzamento com os pagamentos no Cheers.</p></div>
@@ -160,8 +163,17 @@ export function renderJief(app, model, goHome, store) {
     const rows=[...block.querySelectorAll('[data-athlete-row]')];
     rows.forEach((row,index)=>row.querySelector('[data-slot]').textContent=slots(model,index));
     block.querySelector('[data-roster-count]').textContent=`${rows.length} de ${model.max} ${rows.length===1?'atleta adicionado':'atletas adicionados'}`;
+    if(block.querySelector('[data-enroll]').checked)block.querySelector('[data-roster-selection]').textContent=`Selecionada · ${rows.length}/${model.max}`;
     block.querySelector('[data-add-athlete]').disabled=rows.length>=model.max;
   };
+  app.querySelectorAll('[data-enroll]').forEach(checkbox=>checkbox.addEventListener('change',()=>{
+    const block=checkbox.closest('[data-roster]');
+    const selected=checkbox.checked;
+    block.querySelector('[data-roster-content]').hidden=!selected;
+    block.querySelector('[data-roster-selection]').textContent=selected?`Selecionada · ${block.querySelectorAll('[data-athlete-row]').length}/${MODALITIES.find(item=>item.id===block.dataset.roster).max}`:'Não selecionada';
+    block.classList.toggle('is-enrolled',selected);
+    showRosterIssues([]);
+  }));
   app.querySelectorAll('[data-add-athlete]').forEach(button=>button.addEventListener('click',()=>{
     const model=MODALITIES.find(item=>item.id===button.dataset.addAthlete);
     const grid=app.querySelector(`[data-entries="${model.id}"]`);
@@ -177,13 +189,14 @@ export function renderJief(app, model, goHome, store) {
     button.closest('[data-athlete-row]').remove();
     updateRosterCount(MODALITIES.find(item=>item.id===block.dataset.roster));
   });
-  const readRosters=()=>MODALITIES.map(model=>({ ...model, entries:[...app.querySelectorAll(`[data-entries="${model.id}"] [data-athlete-row]`)].map(row=>({
+  const readRosters=()=>MODALITIES.filter(model=>app.querySelector(`[data-enroll="${model.id}"]`).checked).map(model=>({ ...model, entries:[...app.querySelectorAll(`[data-entries="${model.id}"] [data-athlete-row]`)].map(row=>({
     name:row.querySelector('[data-athlete-name]').value.trim(),
     origin:row.querySelector('[data-athlete-origin]').value||own,
     gender:row.querySelector('[data-athlete-gender]')?.value||''
   })).filter(entry=>entry.name) }));
   const validateRosters=()=>{
     const issues=[]; readRosters().forEach(model=>{
+      if(model.entries.length<model.min)issues.push(`${model.title}: inclua pelo menos ${model.min} ${model.min===1?'participante':'participantes'}.`);
       if(model.entries.length && model.native){const local=model.entries.filter(entry=>entry.origin===own).length;if(local<model.native)issues.push(`${model.title}: inclua pelo menos ${model.native} atletas da própria turma.`);}
       if(model.entries.length && model.entries.some(entry=>!entry.gender) && model.mixed)issues.push(`${model.title}: informe o gênero de cada atleta.`);
       const names=model.entries.map(entry=>entry.name.toLocaleLowerCase('pt-BR'));
@@ -193,11 +206,11 @@ export function renderJief(app, model, goHome, store) {
   };
   const showRosterIssues=issues=>{const error=app.querySelector('#rosterError');error.textContent=issues.join(' ');error.hidden=!issues.length;if(issues.length)error.scrollIntoView({block:'center'});};
   const renderReview=()=>{const entered=readRosters().filter(item=>item.entries.length);app.querySelector('#jiefReview').innerHTML=`<p><strong>${esc(value('jiefNomeGuerra'))}</strong> · ${esc(value('jiefTurma'))} · Líder: ${esc(value('jiefLider'))}</p><ul>${entered.map(item=>`<li>${esc(item.title)}: ${item.entries.length} ${item.entries.length===1?'atleta':'atletas'}</li>`).join('')}</ul>`;};
-  app.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const next=Number(button.dataset.next);if(next===2&&!validateIdentity())return;if(next===3){const issues=validateRosters();if(!readRosters().some(item=>item.entries.length))issues.push('Adicione atletas em pelo menos uma modalidade.');showRosterIssues(issues);if(issues.length)return;renderReview();}showStep(next);}));
+  app.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const next=Number(button.dataset.next);if(next===2&&!validateIdentity())return;if(next===3){const issues=validateRosters();if(!readRosters().length)issues.push('Selecione pelo menos uma modalidade.');showRosterIssues(issues);if(issues.length)return;renderReview();}showStep(next);}));
   app.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>showStep(Number(button.dataset.back))));
   app.querySelector('#generatePdf').addEventListener('click',async()=>{
     const error=app.querySelector('#errorBox');error.hidden=true;if(!validateIdentity()){showStep(1);return;}const issues=validateRosters();if(issues.length){showStep(2);showRosterIssues(issues);return;}
-    const rosters=readRosters(); if(!rosters.some(model=>model.entries.length)){showStep(2);showRosterIssues(['Adicione atletas em pelo menos uma modalidade.']);return;}
+    const rosters=readRosters(); if(!rosters.length){showStep(2);showRosterIssues(['Selecione pelo menos uma modalidade.']);return;}
     const button=app.querySelector('#generatePdf'),label=button.querySelector('.btn-label'),spinner=button.querySelector('.spinner');button.disabled=true;label.textContent='Preparando ficha...';spinner.hidden=false;
     try {const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};const bytes=await createJiefPdf(data);label.textContent='Registrando inscrição...';const submissionCode=await registerJief(data);finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);app.querySelector('#successText').textContent=`Inscrição ${submissionCode} registrada com sucesso. O PDF foi baixado para conferência da equipe.`;} catch(err) {console.error(err);error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;error.hidden=false;} finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
   });

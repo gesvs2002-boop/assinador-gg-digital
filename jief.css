@@ -1,3 +1,18 @@
+.roster-block { padding: 0; overflow: hidden; }
+.roster-block.is-enrolled { border-color: #a8bfff; background: #f5f8ff; }
+.roster-head { cursor: pointer; padding: 18px 20px; margin-bottom: 0; list-style: none; }
+.roster-head::-webkit-details-marker { display: none; }
+.roster-head::before { content: '›'; color: var(--primary); font-size: 24px; line-height: 1; flex: none; transition: transform .18s; }
+.roster-block[open] .roster-head::before { transform: rotate(90deg); }
+.roster-head > div { flex: 1; }
+.roster-head:focus-visible { outline: 3px solid #9dbaff; outline-offset: -3px; }
+.roster-selection { color: var(--muted); font-size: 12px; font-weight: 750; white-space: nowrap; }
+.roster-block.is-enrolled .roster-selection { color: var(--success); }
+.roster-body { padding: 0 20px 20px; }
+.roster-enroll { display: flex; align-items: center; gap: 10px; width: fit-content; cursor: pointer; color: #213654; font-size: 14px; font-weight: 750; }
+.roster-enroll input { width: 18px; height: 18px; accent-color: var(--primary); }
+.roster-limit { color: var(--muted); font-size: 13px; margin: 13px 0 14px; }
+
 .roster-field select {
   min-width: 100px;
   height: 40px;
@@ -39,6 +54,10 @@
 }
 
 @media (max-width: 760px) {
+  .roster-head { padding: 15px 12px; gap: 10px; flex-wrap: wrap; }
+  .roster-head > div { flex-basis: calc(100% - 40px); }
+  .roster-selection { margin-left: 34px; }
+  .roster-body { padding: 0 12px 15px; }
   .roster-field { flex-wrap: wrap; }
   .roster-field input { min-width: calc(100% - 42px); }
   .roster-field select { flex: 1; }
