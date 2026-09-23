@@ -1,38 +1,11 @@
 import { PDF, modelHeader, successHtml, formatPhone, safeName, finishDownload, esc } from './core.js';
+import { JIEF_2026 } from './events/jief-2026.js';
 
 const SUPABASE_URL = 'https://cmpmbbeeonnylomllkna.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_a3H97mJaw_R8OxV3bIwoUg_sHahj8nP';
 
-const TURMAS = [
-  '1º período presencial', '1º período semipresencial',
-  '2º período presencial', '2º período semipresencial',
-  '3º período EAD', '4º período EAD', '5º período EAD', '6º período EAD'
-];
-
-const MODALITIES = [
-  { id:'futsal_m', title:'Futsal masculino', max:10, native:3, note:'Até 10 atletas.' },
-  { id:'futsal_f', title:'Futsal feminino', max:10, native:3, note:'Até 10 atletas.' },
-  { id:'society_m', title:'Futebol Society masculino', max:12, native:3, note:'Até 12 atletas.' },
-  { id:'society_f', title:'Futebol Society feminino', max:12, native:3, note:'Até 12 atletas.' },
-  { id:'handebol_m', title:'Handebol masculino', max:15, native:3, note:'Até 15 atletas.' },
-  { id:'handebol_f', title:'Handebol feminino', max:15, native:3, note:'Até 15 atletas.' },
-  { id:'basquete_m', title:'Basquete masculino', max:10, native:3, note:'Até 10 atletas. O formato poderá ser 5x5 ou 3x3 conforme a adesão.' },
-  { id:'basquete_f', title:'Basquete feminino', max:10, native:3, note:'Até 10 atletas. O formato poderá ser 5x5 ou 3x3 conforme a adesão.' },
-  { id:'volei_praia_m', title:'Vôlei de praia — dupla masculina', max:3, note:'Dupla titular e até 1 reserva.' },
-  { id:'volei_praia_f', title:'Vôlei de praia — dupla feminina', max:3, note:'Dupla titular e até 1 reserva.' },
-  { id:'volei_4x4', title:'Vôlei de praia 4x4 misto', max:7, native:3, mixed:true, note:'4 titulares e até 3 reservas. Os quatro primeiros devem ter 2 mulheres e 2 homens.' },
-  { id:'futevolei_m', title:'Futevôlei — dupla masculina', max:3, note:'Dupla titular e até 1 reserva.' },
-  { id:'futevolei_f', title:'Futevôlei — dupla feminina', max:3, note:'Dupla titular e até 1 reserva.' },
-  { id:'tenis_m', title:'Tênis de mesa masculino', max:2, note:'1 titular e 1 reserva.' },
-  { id:'tenis_f', title:'Tênis de mesa feminino', max:2, note:'1 titular e 1 reserva.' },
-  { id:'truco', title:'Truco', max:3, note:'1 dupla e até 1 reserva.' },
-  { id:'natacao_50_m', title:'Natação 50 m livre masculino', max:2, note:'1 titular e 1 reserva.' },
-  { id:'natacao_50_f', title:'Natação 50 m livre feminino', max:2, note:'1 titular e 1 reserva.' },
-  { id:'natacao_revezamento', title:'Natação 4x25 m misto', max:6, mixed:true, note:'4 titulares e até 2 reservas. Os quatro titulares devem ter 2 mulheres e 2 homens.' },
-  { id:'corrida_m', title:'Corrida masculina', max:5, note:'Até 5 atletas.' },
-  { id:'corrida_f', title:'Corrida feminina', max:5, note:'Até 5 atletas.' },
-  { id:'talentos', title:'Show de talentos', max:10, note:'Uma apresentação por turma. Informe participantes ou responsável pela apresentação.' }
-];
+const TURMAS = JIEF_2026.teams;
+const MODALITIES = JIEF_2026.modalities;
 
 const own = '__mesma_turma__';
 const slots = (model, index) => {
@@ -44,11 +17,22 @@ const slots = (model, index) => {
 };
 
 function roster(model) {
-  const originOptions = `<option value="${own}">Mesma turma</option>${TURMAS.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}`;
   return `<section class="roster-block" data-roster="${model.id}">
     <div class="roster-head"><div><h3>${esc(model.title)}</h3><p>${esc(model.note)}</p></div><span class="count-badge">até ${model.max}</span></div>
-    <div class="roster-grid">${Array.from({length:model.max}, (_, index) => `<label class="roster-field jief-row"><span>${slots(model,index)}</span><input id="${model.id}_${index}_name" maxlength="90" placeholder="Nome completo"><select id="${model.id}_${index}_origin" aria-label="Turma de origem">${originOptions}</select>${model.mixed ? `<select id="${model.id}_${index}_gender" aria-label="Gênero"><option value="">Gênero</option><option value="F">Feminino</option><option value="M">Masculino</option></select>` : ''}</label>`).join('')}</div>
+    <div class="roster-grid" data-entries="${model.id}"></div>
+    <div class="roster-tools"><span data-roster-count="${model.id}">Nenhum atleta adicionado</span><button class="btn btn-ghost" type="button" data-add-athlete="${model.id}">+ Adicionar atleta</button></div>
   </section>`;
+}
+
+function athleteRow(model, index) {
+  const originOptions = `<option value="${own}">Mesma turma</option>${TURMAS.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}`;
+  return `<div class="roster-field jief-row" data-athlete-row>
+    <span data-slot>${slots(model,index)}</span>
+    <input data-athlete-name aria-label="Nome completo do atleta em ${esc(model.title)}" maxlength="90" placeholder="Nome completo" autocomplete="off">
+    <select data-athlete-origin aria-label="Turma de origem do atleta">${originOptions}</select>
+    ${model.mixed ? `<select data-athlete-gender aria-label="Gênero do atleta"><option value="">Gênero</option><option value="F">Feminino</option><option value="M">Masculino</option></select>` : ''}
+    <button class="roster-remove" type="button" data-remove-athlete aria-label="Remover atleta de ${esc(model.title)}">×</button>
+  </div>`;
 }
 
 function wrap(font, text, size, maxWidth) {
@@ -87,7 +71,11 @@ async function createJiefPdf(data) {
   summary.drawText('CONFERÊNCIA DA INSCRIÇÃO', {x:40,y:524,size:10,font:fonts.bold,color:PDF.rgb(.65,.22,.08)});
   const entered=data.rosters.filter(item=>item.entries.length);
   const summaryLines=entered.length ? entered.map(item=>`${item.title}: ${item.entries.length} inscrito(s)`) : ['Nenhuma modalidade preenchida.'];
-  let y=500; summaryLines.forEach(line=>{summary.drawText('•',{x:44,y,size:9,font:fonts.bold,color:PDF.rgb(.15,.08,.05)}); y=drawParagraph(summary,fonts.regular,line,58,y,500,9,12)-2;});
+  summaryLines.forEach((line,index)=>{
+    const column=Math.floor(index/11), y=500-(index%11)*18, x=44+column*264;
+    summary.drawText('•',{x,y,size:8,font:fonts.bold,color:PDF.rgb(.15,.08,.05)});
+    summary.drawText(line,{x:x+12,y,size:8,font:fonts.regular,color:PDF.rgb(.12,.16,.24),maxWidth:246});
+  });
   summary.drawRectangle({x:40,y:154,width:532,height:104,color:PDF.rgb(.985,.97,.94),borderWidth:.7,borderColor:PDF.rgb(.89,.72,.54)});
   summary.drawText('DECLARAÇÃO DO LÍDER', {x:54,y:235,size:8.5,font:fonts.bold,color:PDF.rgb(.65,.22,.08)});
   drawParagraph(summary,fonts.regular,`Declaro que as informações desta ficha foram conferidas pela turma ${data.teamName}. Atletas inscritos como reforço foram informados com sua turma de origem. As regras técnicas, o regulamento completo e o termo individual de responsabilidade serão disponibilizados pela organização antes da competição.`,54,216,500,8.7,11);
@@ -126,8 +114,8 @@ async function registerJief(data) {
       Prefer: 'return=minimal'
     },
     body: JSON.stringify({
-      event_key: 'jief-2026',
-      event_name: 'JIEF 2026',
+      event_key: JIEF_2026.key,
+      event_name: JIEF_2026.name,
       submission_code: submissionCode,
       team: data.team,
       team_name: data.teamName,
@@ -154,11 +142,11 @@ export function renderJief(app, model, goHome, store) {
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
         ${regulation()}<div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Montar elencos →</button></div>
       </section>
-      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Deixe em branco a modalidade em que sua turma não vai competir.</p></div>
-        ${MODALITIES.map(roster).join('')}<div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
+      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Adicione atletas somente nas modalidades em que a turma vai competir.</p></div>
+        ${MODALITIES.map(roster).join('')}<div id="rosterError" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
       </section>
       <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>A ficha será registrada para conferência da Atlética e para cruzamento com os pagamentos no Cheers.</p></div>
-        <div class="mini-regulation"><h3>Antes de finalizar</h3><p>Confira turma, nome de guerra, atletas e origem dos reforços. Após registrar, a ficha entra na planilha da organização e o PDF é baixado para a equipe.</p></div><div id="errorBox" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Registrar e gerar PDF</span><span class="spinner" hidden></span></button></div>
+        <div class="mini-regulation"><h3>Revise sua inscrição</h3><div id="jiefReview"></div><p>Após registrar, a ficha fica disponível no painel da organização e o PDF é baixado para a equipe. O pagamento é conferido separadamente pela organização.</p></div><div id="errorBox" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Registrar e gerar PDF</span><span class="spinner" hidden></span></button></div>
       </section>
     </form>${successHtml()}`;
   app.querySelectorAll('[data-home]').forEach(button=>button.addEventListener('click',goHome));
@@ -167,18 +155,49 @@ export function renderJief(app, model, goHome, store) {
   const value=id=>app.querySelector(`#${id}`)?.value.trim()||'';
   const validateIdentity=()=>{let valid=true;['jiefTurma','jiefNomeGuerra','jiefLider','jiefTelefone'].forEach(id=>{const field=app.querySelector(`#${id}`),ok=field.value.trim()!==''&&field.checkValidity();field.classList.toggle('invalid',!ok);if(!ok)valid=false;});if(!valid)app.querySelector('.invalid')?.focus();return valid;};
   app.querySelector('#jiefTelefone').addEventListener('input',event=>event.target.value=formatPhone(event.target.value));
-  const readRosters=()=>MODALITIES.map(model=>({ ...model, entries:Array.from({length:model.max},(_,index)=>({name:value(`${model.id}_${index}_name`),origin:value(`${model.id}_${index}_origin`)||own,gender:value(`${model.id}_${index}_gender`)})).filter(entry=>entry.name) }));
+  const updateRosterCount=model=>{
+    const block=app.querySelector(`[data-roster="${model.id}"]`);
+    const rows=[...block.querySelectorAll('[data-athlete-row]')];
+    rows.forEach((row,index)=>row.querySelector('[data-slot]').textContent=slots(model,index));
+    block.querySelector('[data-roster-count]').textContent=`${rows.length} de ${model.max} ${rows.length===1?'atleta adicionado':'atletas adicionados'}`;
+    block.querySelector('[data-add-athlete]').disabled=rows.length>=model.max;
+  };
+  app.querySelectorAll('[data-add-athlete]').forEach(button=>button.addEventListener('click',()=>{
+    const model=MODALITIES.find(item=>item.id===button.dataset.addAthlete);
+    const grid=app.querySelector(`[data-entries="${model.id}"]`);
+    if(grid.querySelectorAll('[data-athlete-row]').length>=model.max)return;
+    grid.insertAdjacentHTML('beforeend',athleteRow(model,grid.children.length));
+    updateRosterCount(model);
+    grid.lastElementChild.querySelector('[data-athlete-name]').focus();
+  }));
+  app.addEventListener('click',event=>{
+    const button=event.target.closest('[data-remove-athlete]');
+    if(!button)return;
+    const block=button.closest('[data-roster]');
+    button.closest('[data-athlete-row]').remove();
+    updateRosterCount(MODALITIES.find(item=>item.id===block.dataset.roster));
+  });
+  const readRosters=()=>MODALITIES.map(model=>({ ...model, entries:[...app.querySelectorAll(`[data-entries="${model.id}"] [data-athlete-row]`)].map(row=>({
+    name:row.querySelector('[data-athlete-name]').value.trim(),
+    origin:row.querySelector('[data-athlete-origin]').value||own,
+    gender:row.querySelector('[data-athlete-gender]')?.value||''
+  })).filter(entry=>entry.name) }));
   const validateRosters=()=>{
     const issues=[]; readRosters().forEach(model=>{
       if(model.entries.length && model.native){const local=model.entries.filter(entry=>entry.origin===own).length;if(local<model.native)issues.push(`${model.title}: inclua pelo menos ${model.native} atletas da própria turma.`);}
+      if(model.entries.length && model.entries.some(entry=>!entry.gender) && model.mixed)issues.push(`${model.title}: informe o gênero de cada atleta.`);
+      const names=model.entries.map(entry=>entry.name.toLocaleLowerCase('pt-BR'));
+      if(new Set(names).size!==names.length)issues.push(`${model.title}: há atletas repetidos no mesmo elenco.`);
       if(model.entries.length && model.mixed){const starters=model.entries.slice(0,4);if(starters.length<4 || starters.filter(entry=>entry.gender==='F').length!==2 || starters.filter(entry=>entry.gender==='M').length!==2)issues.push(`${model.title}: os quatro titulares devem ser 2 mulheres e 2 homens.`);}
     }); return issues;
   };
-  app.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const next=Number(button.dataset.next);if(next===2&&!validateIdentity())return;if(next===3){const issues=validateRosters();if(issues.length){app.querySelector('#errorBox').textContent=issues.join(' ');app.querySelector('#errorBox').hidden=false;return;}app.querySelector('#errorBox').hidden=true;}showStep(next);}));
+  const showRosterIssues=issues=>{const error=app.querySelector('#rosterError');error.textContent=issues.join(' ');error.hidden=!issues.length;if(issues.length)error.scrollIntoView({block:'center'});};
+  const renderReview=()=>{const entered=readRosters().filter(item=>item.entries.length);app.querySelector('#jiefReview').innerHTML=`<p><strong>${esc(value('jiefNomeGuerra'))}</strong> · ${esc(value('jiefTurma'))} · Líder: ${esc(value('jiefLider'))}</p><ul>${entered.map(item=>`<li>${esc(item.title)}: ${item.entries.length} ${item.entries.length===1?'atleta':'atletas'}</li>`).join('')}</ul>`;};
+  app.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const next=Number(button.dataset.next);if(next===2&&!validateIdentity())return;if(next===3){const issues=validateRosters();if(!readRosters().some(item=>item.entries.length))issues.push('Adicione atletas em pelo menos uma modalidade.');showRosterIssues(issues);if(issues.length)return;renderReview();}showStep(next);}));
   app.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>showStep(Number(button.dataset.back))));
   app.querySelector('#generatePdf').addEventListener('click',async()=>{
-    const error=app.querySelector('#errorBox');error.hidden=true;if(!validateIdentity()){showStep(1);return;}const issues=validateRosters();if(issues.length){error.textContent=issues.join(' ');error.hidden=false;showStep(2);return;}
-    const rosters=readRosters(); if(!rosters.some(model=>model.entries.length)){error.textContent='Informe ao menos uma modalidade antes de gerar a ficha.';error.hidden=false;showStep(2);return;}
+    const error=app.querySelector('#errorBox');error.hidden=true;if(!validateIdentity()){showStep(1);return;}const issues=validateRosters();if(issues.length){showStep(2);showRosterIssues(issues);return;}
+    const rosters=readRosters(); if(!rosters.some(model=>model.entries.length)){showStep(2);showRosterIssues(['Adicione atletas em pelo menos uma modalidade.']);return;}
     const button=app.querySelector('#generatePdf'),label=button.querySelector('.btn-label'),spinner=button.querySelector('.spinner');button.disabled=true;label.textContent='Preparando ficha...';spinner.hidden=false;
     try {const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};const bytes=await createJiefPdf(data);label.textContent='Registrando inscrição...';const submissionCode=await registerJief(data);finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);app.querySelector('#successText').textContent=`Inscrição ${submissionCode} registrada com sucesso. O PDF foi baixado para conferência da equipe.`;} catch(err) {console.error(err);error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;error.hidden=false;} finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
   });

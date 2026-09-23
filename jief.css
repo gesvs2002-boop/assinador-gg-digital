@@ -1,0 +1,46 @@
+.roster-field select {
+  min-width: 100px;
+  height: 40px;
+  border: 1px solid #ccd6e4;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.roster-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.roster-tools .btn { padding: 9px 13px; }
+
+.roster-remove {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid #ccd6e4;
+  border-radius: 8px;
+  background: #fff;
+  color: #9b2430;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.roster-remove:hover,
+.roster-remove:focus-visible {
+  border-color: #9b2430;
+  outline: 2px solid #ffd9dd;
+}
+
+@media (max-width: 760px) {
+  .roster-field { flex-wrap: wrap; }
+  .roster-field input { min-width: calc(100% - 42px); }
+  .roster-field select { flex: 1; }
+  .roster-tools { align-items: flex-start; flex-direction: column; }
+}
