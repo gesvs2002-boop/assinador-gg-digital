@@ -57,8 +57,15 @@
 .jief-identity-line>label { display: inline-flex; align-items: center; gap: 7px; color: #526276; font-size: 10px; font-weight: 700; }
 .jief-identity-line select { min-width: 135px; max-width: 220px; height: 30px; padding: 0 6px; font-size: 10px; }
 .jief-identity-line .jief-homonym { color: #91582a; }
+.jief-repeated-hint { flex-basis: 100%; color: #8b5829; font-size: 10px; line-height: 1.35; }
 .jief-homonym input { width: 15px; height: 15px; accent-color: #ac6b36; }
 .jief-athlete-payments li small { display: block; margin-top: 4px; color: #985e31; font-size: 10px; font-weight: 800; }
+.jief-success { border-color: #badfc9; }
+.jief-success-code { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 15px 0 11px; }
+.jief-success-code span { flex-basis: 100%; color: #68746c; font-size: 10px; font-weight: 800; letter-spacing: .09em; }
+.jief-success-code strong { padding: 9px 12px; border: 1px solid #d7dfe2; border-radius: 8px; background: #fff; color: #3c2a20; font-size: 13px; letter-spacing: .035em; }
+.jief-success-code .btn { padding: 8px 10px; font-size: 11px; }
+.jief-success .jief-success-help { color: #4e6255; font-size: 11px; line-height: 1.5; }
 
 .roster-tools {
   display: flex;

@@ -1,4 +1,4 @@
-import { modelHeader, successHtml, formatPhone, safeName, finishDownload, esc } from './core.js';
+import { modelHeader, formatPhone, safeName, finishDownload, esc } from './core.js';
 import { JIEF_2026 } from './events/jief-2026.js';
 import { createJiefPdf } from './jief-pdf.mjs';
 
@@ -51,7 +51,7 @@ function athleteRow(model, index) {
     <select data-athlete-origin aria-label="Turma de origem do atleta">${originOptions}</select>
     ${model.mixed ? `<select data-athlete-gender aria-label="Gênero do atleta"><option value="">Gênero</option><option value="F">Feminino</option><option value="M">Masculino</option></select>` : ''}
     <button class="roster-remove" type="button" data-remove-athlete aria-label="Remover atleta de ${esc(model.title)}">×</button>
-    <div class="jief-identity-line"><span class="jief-athlete-code" data-athlete-code>${athleteCode(id)}</span><label>Mesmo atleta em outra modalidade <select data-athlete-link aria-label="Vincular atleta já informado"><option value="">Novo atleta</option></select></label><label class="jief-homonym" data-homonym-label hidden><input type="checkbox" data-homonym> Outra pessoa com o mesmo nome</label></div>
+    <div class="jief-identity-line"><span class="jief-athlete-code" data-athlete-code>${athleteCode(id)}</span><label>Mesmo atleta em outra modalidade <select data-athlete-link aria-label="Vincular atleta já informado"><option value="">Novo atleta</option></select></label><small class="jief-repeated-hint" data-repeat-hint hidden>Este nome já aparece na ficha. Se for o mesmo atleta, selecione-o acima.</small><label class="jief-homonym" data-homonym-label hidden><input type="checkbox" data-homonym> Outra pessoa com o mesmo nome</label></div>
   </div>`;
 }
 
@@ -87,6 +87,10 @@ function regulation() {
   return `<div class="mini-regulation"><h3>Como esta ficha funciona</h3><ol><li>Esta ficha é preenchida pelo líder da turma, registrada pela organização e gera um PDF de conferência.</li><li>Informe a turma, o nome de guerra e somente as modalidades em que a equipe participará.</li><li>Quando um atleta jogar como reforço, selecione a turma de origem dele. Nas modalidades coletivas, a equipe deve manter ao menos 3 atletas da própria turma.</li><li>Em Vôlei de Praia 4x4 e Natação 4x25 mistos, os quatro titulares devem ter 2 mulheres e 2 homens.</li><li>O regulamento completo, as regras técnicas e o termo individual de responsabilidade serão liberados pela organização.</li></ol></div>`;
 }
 
+function registrationSuccess() {
+  return `<section class="success-card jief-success" id="successCard" role="status" hidden><div class="success-icon">✓</div><div><span class="section-kicker">INSCRIÇÃO RECEBIDA</span><h2>Inscrição da equipe registrada</h2><p id="successText">A ficha foi registrada. O pagamento ainda será conferido pela organização.</p><div class="jief-success-code"><span>PROTOCOLO DA EQUIPE</span><strong id="jiefSubmissionCode"></strong><button class="btn btn-ghost" id="jiefCopySubmissionCode" type="button">Copiar código</button></div><p class="jief-success-help">Guarde o código e o PDF. Por enquanto, alterações e novos atletas são feitos pela organização; o acesso do líder será disponibilizado depois.</p></div><div class="success-actions"><a class="btn btn-primary" id="downloadAgain" href="#" download>Baixar PDF novamente</a><button class="btn btn-ghost" data-home type="button">Voltar ao início</button></div></section>`;
+}
+
 export function renderJief(app, model, goHome, store) {
   app.innerHTML = modelHeader(model,[['Turma','Equipe e responsável'],['Modalidades','Elencos e reforços'],['Finalizar','PDF para conferência']]) + `
     <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>Cada atleta paga uma única vez, mesmo que participe de várias modalidades. O líder também recebe orientações individuais após registrar a equipe.</small></div>
@@ -96,13 +100,13 @@ export function renderJief(app, model, goHome, store) {
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
         ${regulation()}<div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Montar elencos →</button></div>
       </section>
-      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Abra uma modalidade, marque a participação e adicione os atletas. Modalidades não selecionadas não entram na ficha.</p></div>
+      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Abra uma modalidade, marque a participação e adicione os atletas. A turma de origem acompanha o atleta em todas as modalidades.</p></div>
         ${MODALITIES.map(roster).join('')}<div id="rosterError" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
       </section>
       <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>Confira a equipe antes de registrar. O Pix de cada atleta aparece depois da confirmação.</p></div>
         <div class="mini-regulation"><h3>Revise sua inscrição</h3><div id="jiefReview"></div><p>O pagamento é individual, uma vez por atleta no evento, e a organização confere cada Pix manualmente.</p></div><div id="errorBox" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Registrar e gerar PDF</span><span class="spinner" hidden></span></button></div>
       </section>
-    </form>${successHtml()}<section class="jief-payment-result" id="jiefPaymentResult" hidden aria-live="polite"></section>`;
+    </form>${registrationSuccess()}<section class="jief-payment-result" id="jiefPaymentResult" hidden aria-live="polite"></section>`;
   let paymentDetails = null;
   const paymentPromise = loadJiefPaymentDetails().then(details => { paymentDetails = details; return details; }).catch(() => null);
   paymentPromise.then(details=>{
@@ -141,8 +145,10 @@ export function renderJief(app, model, goHome, store) {
       const options=[...new Map(named.filter(other=>other!==row&&other.closest('[data-roster]').dataset.roster!==rosterId&&(other.dataset.athleteId!==id||other.dataset.athleteId===row.dataset.linkedId)).map(other=>[other.dataset.athleteId,other.querySelector('[data-athlete-name]').value.trim()])).entries()];
       link.innerHTML='<option value="">Novo atleta</option>'+options.map(([personId,name])=>`<option value="${personId}">${esc(name)} · ${athleteCode(personId)}</option>`).join('');
       link.value=options.some(([personId])=>personId===current)?current:'';
-      const name=row.querySelector('[data-athlete-name]').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+      const selected=row.closest('[data-roster]').querySelector('[data-enroll]').checked;
+      const name=selected?row.querySelector('[data-athlete-name]').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR'):'';
       const repeated=name&&firstByName.has(name)&&firstByName.get(name)!==id&&!row.dataset.linkedId;
+      row.querySelector('[data-repeat-hint]').hidden=!repeated;
       row.querySelector('[data-homonym-label]').hidden=!repeated;
       if(!repeated)row.querySelector('[data-homonym]').checked=false;
       if(name&&!firstByName.has(name))firstByName.set(name,id);
@@ -174,6 +180,13 @@ export function renderJief(app, model, goHome, store) {
     refreshAthleteIdentity();
   });
   app.addEventListener('change',event=>{
+    const origin=event.target.closest('[data-athlete-origin]');
+    if(origin){
+      const row=origin.closest('[data-athlete-row]');
+      athleteRows().filter(other=>other!==row&&other.dataset.athleteId===row.dataset.athleteId)
+        .forEach(other=>{other.querySelector('[data-athlete-origin]').value=origin.value;});
+      return;
+    }
     const link=event.target.closest('[data-athlete-link]');
     if(!link)return;
     const row=link.closest('[data-athlete-row]'),target=athleteRows().find(other=>other!==row&&other.dataset.athleteId===link.value);
@@ -209,7 +222,7 @@ export function renderJief(app, model, goHome, store) {
       if(new Set(ids).size!==ids.length)issues.push(`${model.title}: o mesmo atleta aparece duas vezes no elenco.`);
       if(model.entries.length && model.mixed){const starters=model.entries.slice(0,4);if(starters.length<4 || starters.filter(entry=>entry.gender==='F').length!==2 || starters.filter(entry=>entry.gender==='M').length!==2)issues.push(`${model.title}: os quatro titulares devem ser 2 mulheres e 2 homens.`);}
     });
-    const named=new Map(),idNames=new Map();
+    const named=new Map(),idNames=new Map(),idOrigins=new Map();
     athleteRows().filter(row=>row.closest('[data-roster]').querySelector('[data-enroll]').checked).forEach(row=>{
       const name=row.querySelector('[data-athlete-name]').value.trim();if(!name)return;
       const key=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR'),id=row.dataset.athleteId;
@@ -217,6 +230,9 @@ export function renderJief(app, model, goHome, store) {
       if(!named.has(key))named.set(key,id);
       if(idNames.has(id)&&idNames.get(id)!==key)issues.push(`${name}: o código deste atleta está ligado a outro nome.`);
       idNames.set(id,key);
+      const origin=row.querySelector('[data-athlete-origin]').value||own;
+      if(idOrigins.has(id)&&idOrigins.get(id)!==origin)issues.push(`${name}: a turma de origem deve ser igual em todas as modalidades.`);
+      idOrigins.set(id,origin);
     });
     return [...new Set(issues)];
   };
@@ -247,6 +263,38 @@ export function renderJief(app, model, goHome, store) {
     const error=app.querySelector('#errorBox');error.hidden=true;if(!validateIdentity()){showStep(1);return;}const issues=validateRosters();if(issues.length){showStep(2);showRosterIssues(issues);return;}
     const rosters=readRosters(); if(!rosters.length){showStep(2);showRosterIssues(['Selecione pelo menos uma modalidade.']);return;}
     const button=app.querySelector('#generatePdf'),label=button.querySelector('.btn-label'),spinner=button.querySelector('.spinner');button.disabled=true;label.textContent='Preparando ficha...';spinner.hidden=false;
-    try {const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};const bytes=await createJiefPdf(data);label.textContent='Registrando inscrição...';const submissionCode=await registerJief(data);finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);app.querySelector('#successText').textContent=`Inscrição ${submissionCode} registrada com sucesso. O PDF foi baixado para conferência da equipe.`;await paymentPromise;if(!paymentDetails)paymentDetails=await loadJiefPaymentDetails().catch(()=>null);renderPaymentResult(data,submissionCode);} catch(err) {console.error(err);error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;error.hidden=false;} finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
+    try {
+      const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};
+      const bytes=await createJiefPdf(data);
+      label.textContent='Registrando inscrição...';
+      const submissionCode=await registerJief(data);
+      app.querySelector('#jiefSubmissionCode').textContent=submissionCode;
+      app.querySelector('#successText').textContent='Sua inscrição foi salva. O pagamento ainda será conferido pela organização. Confira abaixo as orientações para cada atleta.';
+      app.querySelector('#jiefForm').hidden=true;
+      app.querySelector('.steps').hidden=true;
+      app.querySelector('.jief-payment-intro').hidden=true;
+      app.querySelector('#jiefPublicPix').hidden=true;
+      try {
+        finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);
+        app.querySelector('#successText').textContent='Sua inscrição foi salva e o PDF foi baixado. O pagamento ainda será conferido pela organização. Confira abaixo as orientações para cada atleta.';
+      } catch(downloadError) {
+        console.error(downloadError);
+        app.querySelector('#successCard').hidden=false;
+        app.querySelector('#downloadAgain').hidden=true;
+        app.querySelector('#successText').textContent='Sua inscrição foi salva, mas o download do PDF falhou. Guarde o protocolo e peça o documento à organização.';
+        app.querySelector('#successCard').scrollIntoView({behavior:'smooth',block:'center'});
+      }
+      await paymentPromise;
+      if(!paymentDetails)paymentDetails=await loadJiefPaymentDetails().catch(()=>null);
+      renderPaymentResult(data,submissionCode);
+    } catch(err) {
+      console.error(err);
+      error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;
+      error.hidden=false;
+    } finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
+  });
+  app.querySelector('#jiefCopySubmissionCode').addEventListener('click',async event=>{
+    const code=app.querySelector('#jiefSubmissionCode').textContent;
+    try{await navigator.clipboard.writeText(code);event.currentTarget.textContent='Código copiado';}catch{event.currentTarget.textContent='Não foi possível copiar';}
   });
 }
