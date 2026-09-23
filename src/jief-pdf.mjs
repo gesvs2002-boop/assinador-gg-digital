@@ -40,8 +40,8 @@ export async function createJiefPdf(data) {
   summary.drawText('CONFERÊNCIA DA INSCRIÇÃO', {x:40,y:524,size:10,font:fonts.bold,color:PDF.rgb(.65,.22,.08)});
   const entered=data.rosters.filter(item=>item.entries.length);
   const uniqueAthletes=new Set(entered.flatMap(item=>item.entries.map(entry=>entry.athlete_id||entry.name))).size;
-  summary.drawText(`${uniqueAthletes} atleta(s) identificado(s) em ${entered.length} modalidade(s)`,{x:314,y:524,size:8,font:fonts.bold,color:PDF.rgb(.34,.38,.45),maxWidth:258});
-  const summaryLines=entered.length ? entered.map(item=>`${item.title}: ${item.entries.length} inscrito(s)`) : ['Nenhuma modalidade preenchida.'];
+  summary.drawText(`${uniqueAthletes} ${uniqueAthletes===1?'atleta identificado':'atletas identificados'} em ${entered.length} ${entered.length===1?'modalidade':'modalidades'}`,{x:314,y:524,size:8,font:fonts.bold,color:PDF.rgb(.34,.38,.45),maxWidth:258});
+  const summaryLines=entered.length ? entered.map(item=>`${item.title}: ${item.entries.length} ${item.entries.length===1?'inscrito':'inscritos'}`) : ['Nenhuma modalidade preenchida.'];
   summaryLines.forEach((line,index)=>{
     const column=Math.floor(index/11), y=500-(index%11)*18, x=44+column*264;
     summary.drawText('•',{x,y,size:8,font:fonts.bold,color:PDF.rgb(.15,.08,.05)});
