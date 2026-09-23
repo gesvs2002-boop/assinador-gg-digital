@@ -86,7 +86,8 @@ function regulation() {
 
 export function renderJief(app, model, goHome, store) {
   app.innerHTML = modelHeader(model,[['Turma','Equipe e responsável'],['Modalidades','Elencos e reforços'],['Finalizar','PDF para conferência']]) + `
-    <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>O Pix é apresentado depois que a ficha da equipe for registrada. Cada atleta paga uma única vez, mesmo que participe de várias modalidades.</small></div>
+    <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>Cada atleta paga uma única vez, mesmo que participe de várias modalidades. O líder também recebe orientações individuais após registrar a equipe.</small></div>
+    <details class="jief-public-pix" id="jiefPublicPix"><summary>Já consta em uma ficha? Ver dados Pix</summary><div id="jiefPublicPixBody"><p>Carregando dados Pix...</p></div></details>
     <form id="jiefForm" novalidate>
       <section class="panel" data-step-panel="1"><div class="panel-head"><div><span class="section-kicker">Etapa 1 de 3</span><h2>Identificação da equipe</h2></div><p>Use a turma oficial e defina o nome de guerra que aparecerá no JIEF.</p></div>
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
@@ -101,6 +102,15 @@ export function renderJief(app, model, goHome, store) {
     </form>${successHtml()}<section class="jief-payment-result" id="jiefPaymentResult" hidden aria-live="polite"></section>`;
   let paymentDetails = null;
   const paymentPromise = loadJiefPaymentDetails().then(details => { paymentDetails = details; return details; }).catch(() => null);
+  paymentPromise.then(details=>{
+    const body=app.querySelector('#jiefPublicPixBody');
+    if(!body)return;
+    if(!details){body.innerHTML='<p>Dados Pix indisponíveis no momento. Confirme diretamente com a organização antes de pagar.</p>';return;}
+    body.innerHTML=`<p>Use estes dados somente se você já foi incluído em uma ficha do JIEF. Pague <strong>${brl(details.price_cents)} uma vez por atleta</strong> e identifique seu nome e turma no comprovante.</p><div class="jief-pix-key"><small>CHAVE PIX · ${esc(details.recipient_name)} · ${esc(details.recipient_city)}</small><code>${esc(details.pix_key)}</code><button class="btn btn-ghost" type="button" id="jiefCopyPublicPix">Copiar chave Pix</button></div>${details.payment_instructions?`<p class="jief-payment-instructions">${esc(details.payment_instructions)}</p>`:''}<p class="jief-payment-caution">A organização confirma o pagamento manualmente.</p>`;
+    body.querySelector('#jiefCopyPublicPix').addEventListener('click',async event=>{
+      try{await navigator.clipboard.writeText(details.pix_key);event.currentTarget.textContent='Chave copiada';}catch{event.currentTarget.textContent='Não foi possível copiar';}
+    });
+  });
   app.querySelectorAll('[data-home]').forEach(button=>button.addEventListener('click',goHome));
   const panels=[...app.querySelectorAll('[data-step-panel]')], pills=[...app.querySelectorAll('[data-step-pill]')];
   const showStep=n=>{panels.forEach(p=>p.hidden=Number(p.dataset.stepPanel)!==n);pills.forEach(p=>{const step=Number(p.dataset.stepPill);p.classList.toggle('is-active',step===n);p.classList.toggle('is-done',step<n);});scrollTo({top:0,behavior:'smooth'});};
