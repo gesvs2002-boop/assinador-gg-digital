@@ -8,6 +8,19 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_a3H97mJaw_R8OxV3bIwoUg_sHahj8nP
 const TURMAS = JIEF_2026.teams;
 const MODALITIES = JIEF_2026.modalities;
 
+async function loadJiefPaymentDetails() {
+  const url = `${SUPABASE_URL}/rest/v1/gg_event_payment_settings?event_key=eq.jief-2026&select=event_key,price_cents,pix_key,recipient_name,recipient_city,payment_instructions`;
+  const response = await fetch(url, {
+    headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` },
+    cache: 'no-store'
+  });
+  if (!response.ok) throw new Error('Dados Pix indisponíveis');
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
+const brl = cents => (Number(cents) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
 const own = '__mesma_turma__';
 const slots = (model, index) => {
   if (model.mixed && index < 4) return `Titular ${index + 1}`;
@@ -73,6 +86,7 @@ function regulation() {
 
 export function renderJief(app, model, goHome, store) {
   app.innerHTML = modelHeader(model,[['Turma','Equipe e responsável'],['Modalidades','Elencos e reforços'],['Finalizar','PDF para conferência']]) + `
+    <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>O Pix é apresentado depois que a ficha da equipe for registrada. Cada atleta paga uma única vez, mesmo que participe de várias modalidades.</small></div>
     <form id="jiefForm" novalidate>
       <section class="panel" data-step-panel="1"><div class="panel-head"><div><span class="section-kicker">Etapa 1 de 3</span><h2>Identificação da equipe</h2></div><p>Use a turma oficial e defina o nome de guerra que aparecerá no JIEF.</p></div>
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
@@ -81,10 +95,12 @@ export function renderJief(app, model, goHome, store) {
       <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Abra uma modalidade, marque a participação e adicione os atletas. Modalidades não selecionadas não entram na ficha.</p></div>
         ${MODALITIES.map(roster).join('')}<div id="rosterError" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
       </section>
-      <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>A ficha será registrada para conferência da organização. O pagamento individual de R$ 20,00 por atleta será informado separadamente enquanto a área de pagamento é preparada.</p></div>
-        <div class="mini-regulation"><h3>Revise sua inscrição</h3><div id="jiefReview"></div><p>Após registrar, a ficha fica disponível no painel da organização e o PDF é baixado para a equipe. O pagamento é conferido separadamente pela organização.</p></div><div id="errorBox" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Registrar e gerar PDF</span><span class="spinner" hidden></span></button></div>
+      <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>Confira a equipe antes de registrar. O Pix de cada atleta aparece depois da confirmação.</p></div>
+        <div class="mini-regulation"><h3>Revise sua inscrição</h3><div id="jiefReview"></div><p>O pagamento é individual, uma vez por atleta no evento, e a organização confere cada Pix manualmente.</p></div><div id="errorBox" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="2">← Voltar</button><button class="btn btn-primary btn-generate" id="generatePdf" type="button"><span class="btn-label">Registrar e gerar PDF</span><span class="spinner" hidden></span></button></div>
       </section>
-    </form>${successHtml()}`;
+    </form>${successHtml()}<section class="jief-payment-result" id="jiefPaymentResult" hidden aria-live="polite"></section>`;
+  let paymentDetails = null;
+  const paymentPromise = loadJiefPaymentDetails().then(details => { paymentDetails = details; return details; }).catch(() => null);
   app.querySelectorAll('[data-home]').forEach(button=>button.addEventListener('click',goHome));
   const panels=[...app.querySelectorAll('[data-step-panel]')], pills=[...app.querySelectorAll('[data-step-pill]')];
   const showStep=n=>{panels.forEach(p=>p.hidden=Number(p.dataset.stepPanel)!==n);pills.forEach(p=>{const step=Number(p.dataset.stepPill);p.classList.toggle('is-active',step===n);p.classList.toggle('is-done',step<n);});scrollTo({top:0,behavior:'smooth'});};
@@ -139,12 +155,31 @@ export function renderJief(app, model, goHome, store) {
   };
   const showRosterIssues=issues=>{const error=app.querySelector('#rosterError');error.textContent=issues.join(' ');error.hidden=!issues.length;if(issues.length)error.scrollIntoView({block:'center'});};
   const renderReview=()=>{const entered=readRosters().filter(item=>item.entries.length);app.querySelector('#jiefReview').innerHTML=`<p><strong>${esc(value('jiefNomeGuerra'))}</strong> · ${esc(value('jiefTurma'))} · Líder: ${esc(value('jiefLider'))}</p><ul>${entered.map(item=>`<li>${esc(item.title)}: ${item.entries.length} ${item.entries.length===1?'atleta':'atletas'}</li>`).join('')}</ul>`;};
+  const renderPaymentResult=(data,code)=>{
+    const mount=app.querySelector('#jiefPaymentResult');
+    const athletes=[...new Map(data.rosters.flatMap(roster=>roster.entries).map(entry=>[entry.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim(),entry.name])).values()];
+    if(!paymentDetails){
+      mount.innerHTML='<h2>Pagamento ainda indisponível</h2><p>A ficha foi registrada, mas os dados Pix não puderam ser carregados. Não pague com dados recebidos de terceiros; confirme diretamente com a organização.</p>';
+    } else {
+      const amount=brl(paymentDetails.price_cents);
+      mount.innerHTML=`<span class="section-kicker">PRÓXIMO PASSO · PAGAMENTO INDIVIDUAL</span><h2>Pix dos atletas</h2><p>Cada atleta abaixo paga <strong>${amount} uma vez no JIEF</strong>, mesmo em várias modalidades. A confirmação é feita manualmente pela organização.</p><div class="jief-payment-facts"><div><small>VALOR POR ATLETA</small><strong>${amount}</strong></div><div><small>RECEBEDOR</small><strong>${esc(paymentDetails.recipient_name)}</strong><span>${esc(paymentDetails.recipient_city)}</span></div></div><div class="jief-pix-key"><small>CHAVE PIX</small><code>${esc(paymentDetails.pix_key)}</code><button class="btn btn-ghost" id="jiefCopyPix" type="button">Copiar chave Pix</button></div>${paymentDetails.payment_instructions?`<p class="jief-payment-instructions">${esc(paymentDetails.payment_instructions)}</p>`:''}<div class="jief-athlete-payments"><h3>Compartilhe com os atletas <small>${athletes.length} ${athletes.length===1?'pessoa':'pessoas'}</small></h3><p>Peça que o comprovante identifique o nome do atleta e a turma. O líder pode copiar uma mensagem para cada pessoa.</p><ul>${athletes.map((name,index)=>`<li><span>${esc(name)}</span><button class="btn btn-ghost" type="button" data-copy-payment="${index}">Copiar orientação</button></li>`).join('')}</ul></div><p class="jief-payment-caution">O Pix não é confirmado automaticamente. Guarde o comprovante e aguarde a organização marcar o pagamento no painel.</p>`;
+      mount.querySelector('#jiefCopyPix').addEventListener('click',async event=>{
+        try{await navigator.clipboard.writeText(paymentDetails.pix_key);event.currentTarget.textContent='Chave copiada';}catch{event.currentTarget.textContent='Não foi possível copiar';}
+      });
+      mount.querySelectorAll('[data-copy-payment]').forEach(button=>button.addEventListener('click',async()=>{
+        const name=athletes[Number(button.dataset.copyPayment)];
+        const message=`JIEF 2026 · Inscrição ${code}\nAtleta: ${name}\nTurma: ${data.team}\nPix individual: ${amount}\nChave Pix: ${paymentDetails.pix_key}\nRecebedor: ${paymentDetails.recipient_name} (${paymentDetails.recipient_city})\n${paymentDetails.payment_instructions||'Identifique o nome do atleta no comprovante e envie à organização.'}\nA confirmação é manual pela organização.`;
+        try{await navigator.clipboard.writeText(message);button.textContent='Orientação copiada';}catch{button.textContent='Não foi possível copiar';}
+      }));
+    }
+    mount.hidden=false;
+  };
   app.querySelectorAll('[data-next]').forEach(button=>button.addEventListener('click',()=>{const next=Number(button.dataset.next);if(next===2&&!validateIdentity())return;if(next===3){const issues=validateRosters();if(!readRosters().length)issues.push('Selecione pelo menos uma modalidade.');showRosterIssues(issues);if(issues.length)return;renderReview();}showStep(next);}));
   app.querySelectorAll('[data-back]').forEach(button=>button.addEventListener('click',()=>showStep(Number(button.dataset.back))));
   app.querySelector('#generatePdf').addEventListener('click',async()=>{
     const error=app.querySelector('#errorBox');error.hidden=true;if(!validateIdentity()){showStep(1);return;}const issues=validateRosters();if(issues.length){showStep(2);showRosterIssues(issues);return;}
     const rosters=readRosters(); if(!rosters.length){showStep(2);showRosterIssues(['Selecione pelo menos uma modalidade.']);return;}
     const button=app.querySelector('#generatePdf'),label=button.querySelector('.btn-label'),spinner=button.querySelector('.spinner');button.disabled=true;label.textContent='Preparando ficha...';spinner.hidden=false;
-    try {const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};const bytes=await createJiefPdf(data);label.textContent='Registrando inscrição...';const submissionCode=await registerJief(data);finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);app.querySelector('#successText').textContent=`Inscrição ${submissionCode} registrada com sucesso. O PDF foi baixado para conferência da equipe.`;} catch(err) {console.error(err);error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;error.hidden=false;} finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
+    try {const team=value('jiefTurma'),teamName=value('jiefNomeGuerra'),data={team,teamName,leader:value('jiefLider'),phone:value('jiefTelefone'),rosters};const bytes=await createJiefPdf(data);label.textContent='Registrando inscrição...';const submissionCode=await registerJief(data);finishDownload(app,bytes,`JIEF_2026_${safeName(teamName)}.pdf`,false,store);app.querySelector('#successText').textContent=`Inscrição ${submissionCode} registrada com sucesso. O PDF foi baixado para conferência da equipe.`;await paymentPromise;if(!paymentDetails)paymentDetails=await loadJiefPaymentDetails().catch(()=>null);renderPaymentResult(data,submissionCode);} catch(err) {console.error(err);error.textContent=`Erro ao finalizar: ${err.message||'falha inesperada'}`;error.hidden=false;} finally {button.disabled=false;label.textContent='Registrar e gerar PDF';spinner.hidden=true;}
   });
 }

@@ -1,4 +1,28 @@
 .roster-block { padding: 0; overflow: hidden; }
+.jief-payment-intro { display: grid; gap: 5px; margin: 0 0 18px; padding: 17px 20px; border-left: 4px solid #d68a39; border-radius: 0 12px 12px 0; background: #fff8ef; color: #332b25; }
+.jief-payment-intro span { color: #a66730; font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+.jief-payment-intro strong { font-size: 16px; }
+.jief-payment-intro small { color: #665f58; font-size: 12px; line-height: 1.5; }
+.jief-payment-result { margin: 18px 0 40px; padding: 26px; border: 1px solid #e6d5bd; border-radius: 16px; background: #fffdf9; box-shadow: 0 12px 34px #3b2a1710; }
+.jief-payment-result h2 { margin: 7px 0 10px; font-size: clamp(22px,3vw,29px); }
+.jief-payment-result>p { color: #5d626a; font-size: 13px; line-height: 1.6; }
+.jief-payment-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0 10px; }
+.jief-payment-facts>div { display: grid; gap: 5px; padding: 15px; background: #f7f3ec; border: 1px solid #eee5d7; border-radius: 10px; }
+.jief-payment-facts small,.jief-pix-key small { color: #9c6835; font-size: 10px; font-weight: 850; letter-spacing: .09em; }
+.jief-payment-facts strong { font-size: 17px; color: #2b2e36; }
+.jief-payment-facts span { color: #667085; font-size: 11px; }
+.jief-pix-key { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px 12px; align-items: center; padding: 16px; border: 1px solid #ead6b7; border-radius: 10px; background: #fff; }
+.jief-pix-key small { grid-column: 1 / -1; }
+.jief-pix-key code { overflow-wrap: anywhere; color: #283449; font-size: 13px; }
+.jief-payment-instructions { padding: 12px 14px; background: #f5f7fb; border-radius: 9px; white-space: pre-wrap; }
+.jief-athlete-payments { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e9e2d7; }
+.jief-athlete-payments h3 { margin: 0 0 7px; font-size: 16px; }
+.jief-athlete-payments h3 small { color: #8b633b; font-size: 11px; }
+.jief-athlete-payments p { color: #667085; font-size: 12px; line-height: 1.5; }
+.jief-athlete-payments ul { list-style: none; padding: 0; margin: 15px 0 0; display: grid; gap: 7px; }
+.jief-athlete-payments li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 11px; background: #fff; border: 1px solid #e5e8ed; border-radius: 9px; font-size: 12px; }
+.jief-athlete-payments li .btn { font-size: 11px; padding: 7px 9px; white-space: nowrap; }
+.jief-payment-caution { color: #766039 !important; font-size: 11px !important; }
 .roster-block.is-enrolled { border-color: #a8bfff; background: #f5f8ff; }
 .roster-head { cursor: pointer; padding: 18px 20px; margin-bottom: 0; list-style: none; }
 .roster-head::-webkit-details-marker { display: none; }
@@ -54,6 +78,10 @@
 }
 
 @media (max-width: 760px) {
+  .jief-payment-result { padding: 19px; }
+  .jief-payment-facts { grid-template-columns: 1fr; }
+  .jief-pix-key { grid-template-columns: 1fr; }
+  .jief-athlete-payments li { align-items: flex-start; flex-direction: column; }
   .roster-head { padding: 15px 12px; gap: 10px; flex-wrap: wrap; }
   .roster-head > div { flex-basis: calc(100% - 40px); }
   .roster-selection { margin-left: 34px; }
