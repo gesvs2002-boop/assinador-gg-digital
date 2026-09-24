@@ -53,15 +53,15 @@
 }
 .jief-row { flex-wrap: wrap; }
 .jief-row>[data-athlete-name] { flex: 1 1 145px; min-width: 130px; width: auto; }
-.jief-row>[data-athlete-ria] { flex: 0 1 130px; min-width: 105px; width: auto; text-transform: uppercase; }
-.jief-row>[data-athlete-name]:read-only,.jief-row>[data-athlete-ria]:read-only,.jief-row>[data-athlete-origin]:disabled { background: #eef2f7; color: #475569; }
+.jief-row>[data-athlete-ra] { flex: 0 1 130px; min-width: 105px; width: auto; text-transform: uppercase; }
+.jief-row>[data-athlete-name]:read-only,.jief-row>[data-athlete-ra]:read-only,.jief-row>[data-athlete-origin]:disabled { background: #eef2f7; color: #475569; }
 .jief-identity-line { flex-basis: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding-left: 32px; }
 .jief-athlete-code { font-size: 10px; font-weight: 800; letter-spacing: .03em; color: #985e31; white-space: nowrap; }
 .jief-identity-line>label { display: inline-flex; align-items: center; gap: 7px; color: #526276; font-size: 10px; font-weight: 700; }
 .jief-identity-line select { min-width: 135px; max-width: 220px; height: 30px; padding: 0 6px; font-size: 10px; }
 .jief-identity-line .jief-homonym { color: #91582a; }
 .jief-repeated-hint { flex-basis: 100%; color: #8b5829; font-size: 10px; line-height: 1.35; }
-.jief-ria-hint { flex-basis: 100%; color: #9b2430 !important; font-size: 10px !important; line-height: 1.35; }
+.jief-ra-hint { flex-basis: 100%; color: #9b2430 !important; font-size: 10px !important; line-height: 1.35; }
 .jief-homonym input { width: 15px; height: 15px; accent-color: #ac6b36; }
 .jief-athlete-payments li small { display: block; margin-top: 4px; color: #985e31; font-size: 10px; font-weight: 800; }
 .jief-success { border-color: #badfc9; }

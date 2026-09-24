@@ -13,7 +13,7 @@ test('ficha JIEF inclui duas modalidades e comporta o elenco máximo', async () 
   const bytes=await createJiefPdf({
     team:'Turma teste',teamName:'Equipe teste',leader:'Líder teste',phone:'(69) 99999-0000',
     rosters:[{id:'handebol_m',title:'Handebol masculino',note:'Até 15 atletas.',entries},
-      {id:'corrida_m',title:'Corrida masculina',note:'Até 5 atletas.',entries:[entries[0]]}]
+      {id:'talentos',title:'Show de talentos',note:'Uma apresentação por turma.',entries:[entries[0]]}]
   });
   assert.equal(Buffer.from(bytes).subarray(0,5).toString(),'%PDF-');
   const document=await PDFDocument.load(bytes);
