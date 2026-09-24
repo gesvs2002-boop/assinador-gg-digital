@@ -8,6 +8,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_a3H97mJaw_R8OxV3bIwoUg_sHahj8nP
 const TURMAS = JIEF_2026.teams;
 const MODALITIES = JIEF_2026.modalities;
 const athleteCode = id => { const hex=String(id||'').replace(/-/g,'').toUpperCase(); return `JIEF-A${hex.slice(0,8)}${hex.slice(-8)}`; };
+const normalizeRia = value => String(value||'').trim().toUpperCase();
 
 async function loadJiefPaymentDetails() {
   const url = `${SUPABASE_URL}/rest/v1/gg_event_payment_settings?event_key=eq.jief-2026&select=event_key,price_cents,pix_key,recipient_name,recipient_city,payment_instructions`;
@@ -48,10 +49,11 @@ function athleteRow(model, index) {
   return `<div class="roster-field jief-row" data-athlete-row data-athlete-id="${id}">
     <span data-slot>${slots(model,index)}</span>
     <input data-athlete-name aria-label="Nome completo do atleta em ${esc(model.title)}" maxlength="90" placeholder="Nome completo" autocomplete="off">
+    <input data-athlete-ria aria-label="RIA do atleta em ${esc(model.title)}" maxlength="30" placeholder="RIA do aluno" autocomplete="off">
     <select data-athlete-origin aria-label="Turma de origem do atleta">${originOptions}</select>
     ${model.mixed ? `<select data-athlete-gender aria-label="Gênero do atleta"><option value="">Gênero</option><option value="F">Feminino</option><option value="M">Masculino</option></select>` : ''}
     <button class="roster-remove" type="button" data-remove-athlete aria-label="Remover atleta de ${esc(model.title)}">×</button>
-    <div class="jief-identity-line"><span class="jief-athlete-code" data-athlete-code>${athleteCode(id)}</span><label>Mesmo atleta em outra modalidade <select data-athlete-link aria-label="Vincular atleta já informado"><option value="">Novo atleta</option></select></label><small class="jief-repeated-hint" data-repeat-hint hidden>Este nome já aparece na ficha. Se for o mesmo atleta, selecione-o acima.</small><label class="jief-homonym" data-homonym-label hidden><input type="checkbox" data-homonym> Outra pessoa com o mesmo nome</label></div>
+    <div class="jief-identity-line"><span class="jief-athlete-code" data-athlete-code>${athleteCode(id)}</span><label>Mesmo atleta em outra modalidade <select data-athlete-link aria-label="Vincular atleta já informado"><option value="">Novo atleta</option></select></label><small class="jief-repeated-hint" data-repeat-hint hidden>Este nome já aparece na ficha. Se for o mesmo atleta, selecione-o acima.</small><label class="jief-ria-hint" data-ria-hint hidden>Este RIA já aparece em outra modalidade. Vincule o atleta acima para usar o mesmo código.</label><label class="jief-homonym" data-homonym-label hidden><input type="checkbox" data-homonym> Outra pessoa com o mesmo nome</label></div>
   </div>`;
 }
 
@@ -100,7 +102,7 @@ export function renderJief(app, model, goHome, store) {
         <div class="form-grid"><label class="field"><span>Turma oficial *</span><select id="jiefTurma" required><option value="">Selecione a turma</option>${TURMAS.map(t=>`<option>${esc(t)}</option>`).join('')}</select></label><label class="field"><span>Nome de guerra da turma *</span><input id="jiefNomeGuerra" required maxlength="40" placeholder="Ex.: Furacão, Relâmpago"></label><label class="field field-span-2"><span>Líder responsável pela inscrição *</span><input id="jiefLider" required maxlength="90" autocomplete="name"></label><label class="field"><span>Telefone do líder *</span><input id="jiefTelefone" required maxlength="16" inputmode="tel"></label><label class="field"><span>Curso</span><input value="Educação Física • UNISAPIENS" disabled></label></div>
         ${regulation()}<div class="actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Montar elencos →</button></div>
       </section>
-      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Abra uma modalidade, marque a participação e adicione os atletas. A turma de origem acompanha o atleta em todas as modalidades.</p></div>
+      <section class="panel" data-step-panel="2" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 2 de 3</span><h2>Modalidades e atletas</h2></div><p>Informe nome completo e RIA de cada aluno. Vincule a mesma pessoa quando ela participar de outra modalidade; nome, RIA e turma de origem acompanham o código.</p></div>
         ${MODALITIES.map(roster).join('')}<div id="rosterError" class="error-box" role="alert" hidden></div><div class="actions"><button class="btn btn-ghost" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Revisar ficha →</button></div>
       </section>
       <section class="panel" data-step-panel="3" hidden><div class="panel-head"><div><span class="section-kicker">Etapa 3 de 3</span><h2>Registrar ficha e gerar PDF</h2></div><p>Confira a equipe antes de registrar. O Pix de cada atleta aparece depois da confirmação.</p></div>
@@ -137,21 +139,30 @@ export function renderJief(app, model, goHome, store) {
     const rows=athleteRows();
     const named=rows.filter(row=>row.closest('[data-roster]').querySelector('[data-enroll]').checked&&row.querySelector('[data-athlete-name]').value.trim());
     const firstByName=new Map();
+    const firstByRia=new Map(),firstById=new Map();
     rows.forEach(row=>{
       const id=row.dataset.athleteId;
       row.querySelector('[data-athlete-code]').textContent=athleteCode(id);
       const link=row.querySelector('[data-athlete-link]'),current=link.value;
       const rosterId=row.closest('[data-roster]').dataset.roster;
-      const options=[...new Map(named.filter(other=>other!==row&&other.closest('[data-roster]').dataset.roster!==rosterId&&(other.dataset.athleteId!==id||other.dataset.athleteId===row.dataset.linkedId)).map(other=>[other.dataset.athleteId,other.querySelector('[data-athlete-name]').value.trim()])).entries()];
-      link.innerHTML='<option value="">Novo atleta</option>'+options.map(([personId,name])=>`<option value="${personId}">${esc(name)} · ${athleteCode(personId)}</option>`).join('');
+      const options=[...new Map(named.filter(other=>other!==row&&other.closest('[data-roster]').dataset.roster!==rosterId&&(other.dataset.athleteId!==id||other.dataset.athleteId===row.dataset.linkedId)).map(other=>[other.dataset.athleteId,{name:other.querySelector('[data-athlete-name]').value.trim(),ria:normalizeRia(other.querySelector('[data-athlete-ria]').value)}])).entries()];
+      link.innerHTML='<option value="">Novo atleta</option>'+options.map(([personId,person])=>`<option value="${personId}">${esc(person.name)}${person.ria?` · RIA ${esc(person.ria)}`:''} · ${athleteCode(personId)}</option>`).join('');
       link.value=options.some(([personId])=>personId===current)?current:'';
       const selected=row.closest('[data-roster]').querySelector('[data-enroll]').checked;
       const name=selected?row.querySelector('[data-athlete-name]').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR'):'';
+      const ria=selected?normalizeRia(row.querySelector('[data-athlete-ria]').value):'';
       const repeated=name&&firstByName.has(name)&&firstByName.get(name)!==id&&!row.dataset.linkedId;
       row.querySelector('[data-repeat-hint]').hidden=!repeated;
+      row.querySelector('[data-ria-hint]').hidden=!(ria&&firstByRia.has(ria)&&firstByRia.get(ria)!==id);
       row.querySelector('[data-homonym-label]').hidden=!repeated;
       if(!repeated)row.querySelector('[data-homonym]').checked=false;
       if(name&&!firstByName.has(name))firstByName.set(name,id);
+      if(ria&&!firstByRia.has(ria))firstByRia.set(ria,id);
+      const linked=firstById.has(id);
+      row.querySelector('[data-athlete-name]').readOnly=linked;
+      row.querySelector('[data-athlete-ria]').readOnly=linked;
+      row.querySelector('[data-athlete-origin]').disabled=linked;
+      if(!linked)firstById.set(id,row);
     });
   };
   app.querySelectorAll('[data-enroll]').forEach(checkbox=>checkbox.addEventListener('change',()=>{
@@ -173,10 +184,12 @@ export function renderJief(app, model, goHome, store) {
     grid.lastElementChild.querySelector('[data-athlete-name]').focus();
   }));
   app.addEventListener('input',event=>{
-    if(!event.target.matches('[data-athlete-name]'))return;
+    if(!event.target.matches('[data-athlete-name],[data-athlete-ria]'))return;
     const row=event.target.closest('[data-athlete-row]');
+    if(event.target.matches('[data-athlete-ria]'))event.target.value=normalizeRia(event.target.value);
+    const field=event.target.matches('[data-athlete-ria]')?'[data-athlete-ria]':'[data-athlete-name]';
     athleteRows().filter(other=>other!==row&&other.dataset.athleteId===row.dataset.athleteId)
-      .forEach(other=>{other.querySelector('[data-athlete-name]').value=event.target.value;});
+      .forEach(other=>{other.querySelector(field).value=event.target.value;});
     refreshAthleteIdentity();
   });
   app.addEventListener('change',event=>{
@@ -194,9 +207,10 @@ export function renderJief(app, model, goHome, store) {
       row.dataset.athleteId=target.dataset.athleteId;
       row.dataset.linkedId=target.dataset.athleteId;
       row.querySelector('[data-athlete-name]').value=target.querySelector('[data-athlete-name]').value;
+      row.querySelector('[data-athlete-ria]').value=target.querySelector('[data-athlete-ria]').value;
       row.querySelector('[data-athlete-origin]').value=target.querySelector('[data-athlete-origin]').value;
       if(row.querySelector('[data-athlete-gender]')&&target.querySelector('[data-athlete-gender]'))row.querySelector('[data-athlete-gender]').value=target.querySelector('[data-athlete-gender]').value;
-    }else{row.dataset.athleteId=crypto.randomUUID();delete row.dataset.linkedId;}
+    }else{row.dataset.athleteId=crypto.randomUUID();delete row.dataset.linkedId;row.querySelector('[data-athlete-name]').value='';row.querySelector('[data-athlete-ria]').value='';row.querySelector('[data-athlete-origin]').value=own;}
     refreshAthleteIdentity();
   });
   app.addEventListener('click',event=>{
@@ -210,6 +224,7 @@ export function renderJief(app, model, goHome, store) {
   const readRosters=()=>MODALITIES.filter(model=>app.querySelector(`[data-enroll="${model.id}"]`).checked).map(model=>({ ...model, entries:[...app.querySelectorAll(`[data-entries="${model.id}"] [data-athlete-row]`)].map(row=>({
     athlete_id:row.dataset.athleteId,
     name:row.querySelector('[data-athlete-name]').value.trim(),
+    ria:normalizeRia(row.querySelector('[data-athlete-ria]').value),
     origin:row.querySelector('[data-athlete-origin]').value||own,
     gender:row.querySelector('[data-athlete-gender]')?.value||''
   })).filter(entry=>entry.name) }));
@@ -222,10 +237,16 @@ export function renderJief(app, model, goHome, store) {
       if(new Set(ids).size!==ids.length)issues.push(`${model.title}: o mesmo atleta aparece duas vezes no elenco.`);
       if(model.entries.length && model.mixed){const starters=model.entries.slice(0,4);if(starters.length<4 || starters.filter(entry=>entry.gender==='F').length!==2 || starters.filter(entry=>entry.gender==='M').length!==2)issues.push(`${model.title}: os quatro titulares devem ser 2 mulheres e 2 homens.`);}
     });
-    const named=new Map(),idNames=new Map(),idOrigins=new Map();
+    const named=new Map(),idNames=new Map(),idOrigins=new Map(),idRias=new Map(),riaIds=new Map();
     athleteRows().filter(row=>row.closest('[data-roster]').querySelector('[data-enroll]').checked).forEach(row=>{
       const name=row.querySelector('[data-athlete-name]').value.trim();if(!name)return;
       const key=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR'),id=row.dataset.athleteId;
+      const ria=normalizeRia(row.querySelector('[data-athlete-ria]').value);
+      if(name.split(/\s+/).length<2)issues.push(`${name}: informe nome e sobrenome do atleta.`);
+      if(!/^[A-Z0-9-]{3,30}$/.test(ria))issues.push(`${name}: informe um RIA válido, de 3 a 30 letras, números ou hífen.`);
+      if(riaIds.has(ria)&&riaIds.get(ria)!==id)issues.push(`${name}: este RIA já foi informado. Vincule o atleta já cadastrado em vez de criar outro código.`);
+      if(idRias.has(id)&&idRias.get(id)!==ria)issues.push(`${name}: o mesmo código de atleta não pode ter RIA diferente.`);
+      riaIds.set(ria,id);idRias.set(id,ria);
       if(named.has(key)&&named.get(key)!==id&&!row.dataset.linkedId&&!row.querySelector('[data-homonym]').checked)issues.push(`${name}: vincule o atleta já informado ou marque que é outra pessoa com o mesmo nome.`);
       if(!named.has(key))named.set(key,id);
       if(idNames.has(id)&&idNames.get(id)!==key)issues.push(`${name}: o código deste atleta está ligado a outro nome.`);

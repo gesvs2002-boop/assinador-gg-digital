@@ -65,7 +65,7 @@ export async function createJiefPdf(data) {
       page.drawLine({start:{x:40,y:rowY},end:{x:572,y:rowY},thickness:.7,color:PDF.rgb(.8,.83,.87)});
       page.drawText(String(index+1).padStart(2,'0'),{x:45,y:rowY-16,size:8,font:fonts.bold,color:PDF.rgb(.34,.38,.45)});
       page.drawText(entry.name,{x:78,y:rowY-14,size:9,font:fonts.regular,color:PDF.rgb(.08,.1,.14),maxWidth:292});
-      page.drawText(athleteCode(entry.athlete_id),{x:78,y:rowY-25,size:7,font:fonts.bold,color:PDF.rgb(.58,.29,.12)});
+      page.drawText(`${entry.ria?`RIA ${entry.ria}  •  `:''}${athleteCode(entry.athlete_id)}`,{x:78,y:rowY-25,size:7,font:fonts.bold,color:PDF.rgb(.58,.29,.12),maxWidth:292});
       page.drawText(entry.origin === own ? 'Mesma turma' : entry.origin,{x:382,y:rowY-16,size:8.2,font:fonts.regular,color:PDF.rgb(.08,.1,.14),maxWidth:model.mixed?118:180});
       if(model.mixed) page.drawText(entry.gender === 'F' ? 'Feminino' : 'Masculino',{x:510,y:rowY-16,size:8.2,font:fonts.regular,color:PDF.rgb(.08,.1,.14)});
       rowY-=32;
