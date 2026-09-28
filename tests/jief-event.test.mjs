@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JIEF_2026 } from '../src/events/jief-2026.js';
 
-test('JIEF expõe apenas as onze modalidades aprovadas', () => {
+test('JIEF expõe nove opções de modalidade, sem futebol society', () => {
   assert.deepEqual(JIEF_2026.modalities.map(item => item.id), [
-    'futsal_m', 'futsal_f', 'society_m', 'society_f',
+    'futsal_m', 'futsal_f',
     'handebol_m', 'handebol_f', 'basquete_m', 'basquete_f',
     'volei_4x4', 'truco', 'talentos'
   ]);

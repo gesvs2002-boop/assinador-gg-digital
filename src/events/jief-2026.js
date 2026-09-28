@@ -11,8 +11,6 @@ export const JIEF_2026 = {
   modalities: [
     { id:'futsal_m', title:'Futsal masculino', min:3, max:10, native:3, note:'Até 10 atletas.' },
     { id:'futsal_f', title:'Futsal feminino', min:3, max:10, native:3, note:'Até 10 atletas.' },
-    { id:'society_m', title:'Futebol Society masculino', min:3, max:12, native:3, note:'Até 12 atletas.' },
-    { id:'society_f', title:'Futebol Society feminino', min:3, max:12, native:3, note:'Até 12 atletas.' },
     { id:'handebol_m', title:'Handebol masculino', min:3, max:15, native:3, note:'Até 15 atletas.' },
     { id:'handebol_f', title:'Handebol feminino', min:3, max:15, native:3, note:'Até 15 atletas.' },
     { id:'basquete_m', title:'Basquete 3x3 masculino', min:3, max:4, native:3, note:'3 titulares e até 1 reserva.' },
