@@ -3,6 +3,13 @@
 .jief-payment-intro span { color: #a66730; font-size: 10px; font-weight: 850; letter-spacing: .12em; }
 .jief-payment-intro strong { font-size: 16px; }
 .jief-payment-intro small { color: #665f58; font-size: 12px; line-height: 1.5; }
+.jief-scoring { display: grid; gap: 13px; margin-top: 20px; padding: 17px 18px; border: 1px solid #e5d2bd; border-left: 4px solid #b86732; border-radius: 10px; background: #fffaf4; }
+.jief-scoring strong { color: #663d23; font-size: 13px; }
+.jief-scoring p { margin: 6px 0 0; color: #5e5149; font-size: 12px; line-height: 1.5; }
+.jief-scoring-places { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
+.jief-scoring-places span { display: flex; align-items: baseline; justify-content: center; gap: 6px; padding: 9px 7px; border: 1px solid #ead9c7; border-radius: 8px; background: #fff; color: #4d3e34; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.jief-scoring-places b { color: #a65027; font-size: 15px; }
+@media (max-width: 520px) { .jief-scoring { padding: 14px; } .jief-scoring-places { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 .jief-public-pix { margin: -4px 0 19px; border: 1px solid #e4e7ee; border-radius: 11px; background: #fff; }
 .jief-public-pix summary { padding: 13px 17px; color: #32588f; cursor: pointer; font-size: 12px; font-weight: 750; }
 .jief-public-pix summary:focus-visible { outline: 3px solid #94b8ed; outline-offset: 2px; }

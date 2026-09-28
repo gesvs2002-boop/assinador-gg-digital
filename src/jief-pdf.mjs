@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { JIEF_2026 } from './events/jief-2026.js';
 
 const PDF = { PDFDocument, StandardFonts, rgb };
 const own = '__mesma_turma__';
@@ -47,6 +48,10 @@ export async function createJiefPdf(data) {
     summary.drawText('•',{x,y,size:8,font:fonts.bold,color:PDF.rgb(.15,.08,.05)});
     summary.drawText(line,{x:x+12,y,size:8,font:fonts.regular,color:PDF.rgb(.12,.16,.24),maxWidth:246});
   });
+  const {first,second,third,other}=JIEF_2026.scoring;
+  summary.drawText('PONTUAÇÃO DA CLASSIFICAÇÃO GERAL POR MODALIDADE',{x:40,y:312,size:8.5,font:fonts.bold,color:PDF.rgb(.65,.22,.08)});
+  summary.drawText(`1º ${first} pontos  •  2º ${second} pontos  •  3º ${third} pontos  •  demais ${other}`,{x:40,y:295,size:9,font:fonts.bold,color:PDF.rgb(.12,.16,.24)});
+  summary.drawText('Cada categoria masculina e feminina pontua separadamente para a turma.',{x:40,y:279,size:8,font:fonts.regular,color:PDF.rgb(.34,.38,.45)});
   summary.drawRectangle({x:40,y:154,width:532,height:104,color:PDF.rgb(.985,.97,.94),borderWidth:.7,borderColor:PDF.rgb(.89,.72,.54)});
   summary.drawText('DECLARAÇÃO DO LÍDER', {x:54,y:235,size:8.5,font:fonts.bold,color:PDF.rgb(.65,.22,.08)});
   drawParagraph(summary,fonts.regular,`Declaro que as informações desta ficha foram conferidas pela turma ${data.teamName}. Atletas inscritos como reforço foram informados com sua turma de origem. As regras técnicas, o regulamento completo e o termo individual de responsabilidade serão disponibilizados pela organização antes da competição.`,54,216,500,8.7,11);
