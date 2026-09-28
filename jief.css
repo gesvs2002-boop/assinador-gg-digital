@@ -9,6 +9,7 @@
 .jief-scoring-places { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
 .jief-scoring-places span { display: flex; align-items: baseline; justify-content: center; gap: 6px; padding: 9px 7px; border: 1px solid #ead9c7; border-radius: 8px; background: #fff; color: #4d3e34; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .jief-scoring-places b { color: #a65027; font-size: 15px; }
+.jief-scoring .jief-scoring-tiebreak { margin-top: 1px; padding-top: 10px; border-top: 1px solid #ead9c7; color: #503e31; font-weight: 650; }
 @media (max-width: 520px) { .jief-scoring { padding: 14px; } .jief-scoring-places { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 .jief-public-pix { margin: -4px 0 19px; border: 1px solid #e4e7ee; border-radius: 11px; background: #fff; }
 .jief-public-pix summary { padding: 13px 17px; color: #32588f; cursor: pointer; font-size: 12px; font-weight: 750; }

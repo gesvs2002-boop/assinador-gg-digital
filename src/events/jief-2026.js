@@ -9,7 +9,7 @@ export const JIEF_2026 = {
   ],
   // Cada opção de modalidade (incluindo masculino e feminino) pontua separadamente
   // para a classificação geral da turma. Não define placar nem chaveamento.
-  scoring: { first:30, second:20, third:10, other:0 },
+  scoring: { first:30, second:20, third:10, other:0, tieBreak:['first','second','third'] },
   // Mínimos operacionais do piloto; conferir com o regulamento oficial antes da divulgação em massa.
   modalities: [
     { id:'futsal_m', title:'Futsal masculino', min:3, max:10, native:3, note:'Até 10 atletas.' },

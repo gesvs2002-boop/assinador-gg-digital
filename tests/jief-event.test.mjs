@@ -14,5 +14,5 @@ test('JIEF expõe nove opções de modalidade, sem futebol society', () => {
     assert.equal(modality.min, 3);
     assert.equal(modality.max, 4);
   }
-  assert.deepEqual(JIEF_2026.scoring,{first:30,second:20,third:10,other:0});
+  assert.deepEqual(JIEF_2026.scoring,{first:30,second:20,third:10,other:0,tieBreak:['first','second','third']});
 });
