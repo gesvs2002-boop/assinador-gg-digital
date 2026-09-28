@@ -96,7 +96,7 @@ function registrationSuccess() {
 
 export function renderJief(app, model, goHome, store) {
   app.innerHTML = modelHeader(model,[['Turma','Equipe e responsável'],['Modalidades','Elencos e reforços'],['Finalizar','PDF para conferência']]) + `
-    <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 20,00 por atleta</strong><small>Cada atleta paga uma única vez, mesmo que participe de várias modalidades. O líder também recebe orientações individuais após registrar a equipe.</small></div>
+    <div class="jief-payment-intro"><span>INSCRIÇÃO JIEF 2026</span><strong>Pagamento individual: R$ 15,00 por atleta</strong><small>Cada atleta paga uma única vez, mesmo que participe de várias modalidades. O líder também recebe orientações individuais após registrar a equipe.</small></div>
     <details class="jief-public-pix" id="jiefPublicPix"><summary>Consultar dados Pix para pagamento</summary><div id="jiefPublicPixBody"><p>Carregando dados Pix...</p></div></details>
     <form id="jiefForm" novalidate>
       <section class="panel" data-step-panel="1"><div class="panel-head"><div><span class="section-kicker">Etapa 1 de 3</span><h2>Identificação da equipe</h2></div><p>Use a turma oficial e defina o nome de guerra que aparecerá no JIEF.</p></div>
