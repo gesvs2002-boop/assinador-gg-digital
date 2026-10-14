@@ -12,13 +12,13 @@ export const JIEF_2026 = {
   scoring: { first:30, second:20, third:10, other:0, tieBreak:['first','second','third'] },
   // Mínimos operacionais do piloto; conferir com o regulamento oficial antes da divulgação em massa.
   modalities: [
-    { id:'futsal_m', title:'Futsal masculino', min:3, max:10, native:3, note:'Até 10 atletas.' },
-    { id:'futsal_f', title:'Futsal feminino', min:3, max:10, native:3, note:'Até 10 atletas.' },
-    { id:'handebol_m', title:'Handebol masculino', min:3, max:15, native:3, note:'Até 15 atletas.' },
-    { id:'handebol_f', title:'Handebol feminino', min:3, max:15, native:3, note:'Até 15 atletas.' },
-    { id:'basquete_m', title:'Basquete 3x3 masculino', min:3, max:4, native:3, note:'3 titulares e até 1 reserva.' },
-    { id:'basquete_f', title:'Basquete 3x3 feminino', min:3, max:4, native:3, note:'3 titulares e até 1 reserva.' },
-    { id:'volei_4x4', title:'Vôlei de praia 4x4 misto', min:4, max:7, native:3, mixed:true, note:'4 titulares e até 3 reservas. Os quatro primeiros devem ter 2 mulheres e 2 homens.' },
+    { id:'futsal_m', title:'Futsal masculino', min:3, max:10, note:'Até 10 atletas.' },
+    { id:'futsal_f', title:'Futsal feminino', min:3, max:10, note:'Até 10 atletas.' },
+    { id:'handebol_m', title:'Handebol masculino', min:3, max:15, note:'Até 15 atletas.' },
+    { id:'handebol_f', title:'Handebol feminino', min:3, max:15, note:'Até 15 atletas.' },
+    { id:'basquete_m', title:'Basquete 3x3 masculino', min:3, max:4, note:'3 titulares e até 1 reserva.' },
+    { id:'basquete_f', title:'Basquete 3x3 feminino', min:3, max:4, note:'3 titulares e até 1 reserva.' },
+    { id:'volei_4x4', title:'Vôlei de praia 4x4 misto', min:4, max:7, mixed:true, note:'4 titulares e até 3 reservas. Os quatro primeiros devem ter 2 mulheres e 2 homens.' },
     { id:'truco', title:'Truco', min:2, max:3, note:'1 dupla e até 1 reserva.' },
     { id:'talentos', title:'Show de talentos', min:1, max:10, note:'Uma apresentação por turma. Informe participantes ou responsável pela apresentação.' }
   ]
